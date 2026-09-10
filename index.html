@@ -336,6 +336,56 @@ pre code.hljs {
 :root[data-theme="dark"] .pc.pros li::before { color: #3FB87D; }
 :root[data-theme="dark"] .pc.cons li::before { color: #F48172; }
 
+/* ─── ANNOTATIONS ────────────────────────── */
+.anno {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  padding: 18px 22px;
+  margin-top: -1px;
+  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.anno-title {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--rule);
+}
+.anno-row {
+  display: grid;
+  grid-template-columns: minmax(0, auto) 1fr;
+  gap: 14px;
+  align-items: baseline;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.anno-row:last-child { border-bottom: none; }
+.anno-key {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  white-space: nowrap;
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  line-height: 1.8;
+}
+.anno-val {
+  font-size: 13px;
+  color: var(--sub);
+  line-height: 1.6;
+}
+.anno-val strong { color: var(--text); font-weight: 600; }
+
 /* ─── RESPONSIVE ──────────────────────────── */
 @media (max-width: 680px) {
   .shell { grid-template-columns: 1fr; }
@@ -447,6 +497,29 @@ while i <= 10:
 print("Suma de cuadrados de pares:", total)
 # → 220   (4 + 16 + 36 + 64 + 100)</code></pre>
       </div>
+      <div class="anno">
+        <div class="anno-title">¿Por qué esto es imperativo?</div>
+        <div class="anno-row">
+          <span class="anno-key">total = 0 / i = 1</span>
+          <span class="anno-val"><strong>Estado inicial explícito.</strong> El programa depende de variables que guardan el estado. Sin estas dos líneas, no hay nada que acumular ni iterar.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">while i &lt;= 10:</span>
+          <span class="anno-val"><strong>Control de flujo manual.</strong> El programador decide cuándo empieza y cuándo termina. La máquina no sabe nada — nosotros le decimos hasta cuándo iterar.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">if i % 2 == 0:</span>
+          <span class="anno-val"><strong>Decisión explícita en cada paso.</strong> Evaluamos una condición y elegimos qué hacer. Es el programador guiando cada bifurcación del camino.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">total = total + cuadrado</span>
+          <span class="anno-val"><strong>Mutación de estado: la firma del imperativo.</strong> Cambiamos el valor de <code>total</code>. El programa "recuerda" porque modificamos una variable. En otros paradigmas esto no existe.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">i = i + 1</span>
+          <span class="anno-val"><strong>Avance manual del contador.</strong> Somos nosotros quienes lo incrementamos. Si olvidamos esta línea, el bucle es infinito. El paradigma imperativo no hace nada que no le digamos explícitamente.</span>
+        </div>
+      </div>
       <p class="section-hd">Dónde se usa</p>
       <div class="uc-grid">
         <div class="uc"><strong>Scripts de automatización</strong><p>Tareas repetitivas donde el orden de los pasos importa.</p></div>
@@ -514,6 +587,29 @@ resultado = burbuja(notas.copy())
 imprimir_resultado(notas, resultado)
 # → Original: [7.5, 9.2, 4.8, 8.0, 6.3]
 # → Ordenada: [4.8, 6.3, 7.5, 8.0, 9.2]</code></pre>
+      </div>
+      <div class="anno">
+        <div class="anno-title">¿Por qué esto es procedimental?</div>
+        <div class="anno-row">
+          <span class="anno-key">def es_mayor(a, b):</span>
+          <span class="anno-val"><strong>Una función, una responsabilidad.</strong> Solo compara dos valores. No ordena, no imprime, no hace más nada. Esa especialización es la base del paradigma procedimental.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">def intercambiar(...)</span>
+          <span class="anno-val"><strong>Reutilización.</strong> Esta función se puede llamar desde cualquier parte del programa. Sin procedimientos, tendríamos que repetir <code>lista[i], lista[j] = lista[j], lista[i]</code> cada vez.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">def burbuja(lista):</span>
+          <span class="anno-val"><strong>Composición de procedimientos.</strong> Esta función llama a <code>es_mayor</code> e <code>intercambiar</code>. Construimos lógica compleja combinando funciones simples — eso es la esencia del procedimental.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">if es_mayor(lista[j], ...)</span>
+          <span class="anno-val"><strong>Legibilidad por nombres.</strong> Podríamos escribir <code>lista[j] &gt; lista[j+1]</code>, pero <code>es_mayor</code> se lee como lenguaje natural. Los nombres de los procedimientos documentan el código.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">resultado = burbuja(notas.copy())</span>
+          <span class="anno-val"><strong>Abstracción de complejidad.</strong> Toda la lógica del ordenamiento queda oculta dentro de <code>burbuja()</code>. El programa principal no necesita saber cómo funciona — solo la llama.</span>
+        </div>
       </div>
       <p class="section-hd">Dónde se usa</p>
       <div class="uc-grid">
@@ -615,6 +711,37 @@ for f in figuras:
 # → Rectangulo azul: área = 24.00
 # → Triangulo verde: área = 12.00</code></pre>
       </div>
+      <div class="anno">
+        <div class="anno-title">¿Por qué esto es orientado a objetos?</div>
+        <div class="anno-row">
+          <span class="anno-key">class Figura:</span>
+          <span class="anno-val"><strong>Clase como plantilla.</strong> No es un objeto todavía — es el molde. Define qué atributos y métodos tendrán todos los objetos de ese tipo. Solo existe en la memoria cuando creamos una instancia con <code>Figura(...)</code>.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">self.__color = color</span>
+          <span class="anno-val"><strong>Encapsulamiento.</strong> Los dobles guiones bajos hacen el atributo privado. Nadie puede escribir <code>figura.__color = "rojo"</code> desde afuera. Solo se accede por el método <code>color()</code>. El objeto controla sus propios datos.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">raise NotImplementedError</span>
+          <span class="anno-val"><strong>Abstracción.</strong> La clase padre sabe que toda figura tiene área, pero no sabe cómo calcularla. Obliga a las subclases a implementar el método. Es un contrato: "si heredás de Figura, debés definir area()".</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">class Circulo(Figura):</span>
+          <span class="anno-val"><strong>Herencia.</strong> <code>Circulo</code> recibe gratis todo lo que tiene <code>Figura</code>: el constructor, el método <code>color()</code>, el método <code>describir()</code>. Solo agrega o sobreescribe lo que es diferente.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">super().__init__(color)</span>
+          <span class="anno-val"><strong>Reutilización del constructor padre.</strong> Le delegamos a <code>Figura</code> la inicialización del color. No duplicamos código. La cadena de constructores sube por la jerarquía.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">def area(self): return math.pi * ...</span>
+          <span class="anno-val"><strong>Polimorfismo: mismo nombre, distinto comportamiento.</strong> <code>Circulo</code>, <code>Rectangulo</code> y <code>Triangulo</code> tienen cada uno su <code>area()</code>. El programa no necesita saber cuál es cuál.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">for f in figuras: f.describir()</span>
+          <span class="anno-val"><strong>Polimorfismo en acción.</strong> Llamamos <code>describir()</code> en cada objeto sin preguntar su tipo. Python internamente llama al <code>area()</code> correcto según la clase real de <code>f</code>. Esto se llama dispatch dinámico.</span>
+        </div>
+      </div>
       <p class="section-hd">Dónde se usa</p>
       <div class="uc-grid">
         <div class="uc"><strong>Videojuegos</strong><p>Personajes, objetos y escenarios como clases con comportamientos propios.</p></div>
@@ -689,6 +816,29 @@ print("Stats:     ", estadisticas(aprobados))
 # → Promedio:   86.0 %
 # → Stats:      {'min': 7.5, 'max': 9.5, 'media': 8.6}</code></pre>
       </div>
+      <div class="anno">
+        <div class="anno-title">¿Por qué esto es funcional?</div>
+        <div class="anno-row">
+          <span class="anno-key">lambda nota: nota >= 6.0</span>
+          <span class="anno-val"><strong>Función pura.</strong> Depende <em>solo</em> de su argumento <code>nota</code>. No lee ni escribe variables externas. Con el mismo input siempre da el mismo output — sin sorpresas.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">filter(aprobado, calificaciones)</span>
+          <span class="anno-val"><strong>Función de orden superior.</strong> <code>filter</code> recibe otra función como argumento. En programación funcional, las funciones son datos: se guardan en variables, se pasan, se devuelven.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">list(map(al_porcentaje, aprobados))</span>
+          <span class="anno-val"><strong>Transformación sin mutación.</strong> No modificamos <code>aprobados</code>. Creamos una lista nueva con los valores transformados. Los datos originales quedan intactos — eso es inmutabilidad.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">reduce(sumar, porcentajes, 0)</span>
+          <span class="anno-val"><strong>Reducción.</strong> Colapsamos toda la lista a un solo valor aplicando <code>sumar</code> acumulativamente: ((82+90)+75)+... El estado intermedio nunca se almacena — es una expresión, no una secuencia de pasos.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">sorted(notas) dentro de estadisticas()</span>
+          <span class="anno-val"><strong>Inmutabilidad garantizada.</strong> <code>sorted()</code> devuelve una lista nueva. La función no toca <code>notas</code>. Si la llamamos 10 veces con los mismos datos, el resultado es siempre el mismo y los datos originales nunca cambian.</span>
+        </div>
+      </div>
       <p class="section-hd">Dónde se usa</p>
       <div class="uc-grid">
         <div class="uc"><strong>Procesamiento de datos</strong><p>Transformaciones en pipelines: ETL, análisis, reportes.</p></div>
@@ -755,6 +905,25 @@ ORDER BY nota DESC;
 -- Ana García  | 9.2 | Sobresaliente
 -- Sara López  | 8.8 | Notable</code></pre>
       </div>
+      <div class="anno">
+        <div class="anno-title">¿Por qué esto es declarativo?</div>
+        <div class="anno-row">
+          <span class="anno-key">SELECT nombre, nota</span>
+          <span class="anno-val"><strong>Declaramos QUÉ queremos ver.</strong> No decimos "iterá la tabla, abrí cada fila, copiá el campo nombre...". Solo declaramos los campos del resultado. El motor decide cómo extraerlos.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">WHERE carrera = 'Sistemas' AND nota >= 6.0</span>
+          <span class="anno-val"><strong>Condición declarada, no código de búsqueda.</strong> El motor decide si usar un índice, un full scan, un hash join, etc. Nosotros nunca escribimos el algoritmo de filtrado.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">ORDER BY nota DESC</span>
+          <span class="anno-val"><strong>Resultado deseado, no algoritmo de ordenamiento.</strong> No programamos bubble sort ni merge sort. Declaramos el orden y el motor elige el algoritmo más eficiente para esos datos.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">CASE WHEN nota >= 9.0 THEN ...</span>
+          <span class="anno-val"><strong>Lógica como expresión, no como secuencia.</strong> En imperativo escribiríamos: variable temporal, if/else, asignación. Aquí es una sola expresión declarativa que el motor evalúa internamente.</span>
+        </div>
+      </div>
       <div class="code-wrap">
         <div class="code-label">HTML + CSS</div>
         <pre><code class="language-html">&lt;!-- Declaramos ESTRUCTURA y ESTILO, no el algoritmo de render --&gt;
@@ -772,6 +941,25 @@ ORDER BY nota DESC;
   &lt;span&gt;Ana García&lt;/span&gt;
   &lt;span class="nota-alta"&gt;9.2&lt;/span&gt;
 &lt;/div&gt;</code></pre>
+      </div>
+      <div class="anno">
+        <div class="anno-title">¿Por qué esto es declarativo? (HTML/CSS)</div>
+        <div class="anno-row">
+          <span class="anno-key">&lt;div class="tarjeta"&gt;</span>
+          <span class="anno-val"><strong>Estructura, no algoritmo.</strong> Declaramos que esto es una "tarjeta". El navegador decide cómo construir el árbol DOM, la memoria necesaria y el proceso de renderizado — nosotros no escribimos ese código.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">display: flex; gap: 16px;</span>
+          <span class="anno-val"><strong>Intención de layout, no cálculo.</strong> No programamos la distribución de posiciones ni el bucle para colocar cada elemento. CSS recibe la intención y el motor de layout del navegador hace los cálculos geométricos.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">class="nota-alta"</span>
+          <span class="anno-val"><strong>Categoría semántica, no comando.</strong> No decimos "ponéle color verde a este span". Declaramos que pertenece a la categoría nota-alta. El estilo es una consecuencia de esa declaración, aplicada por el motor de estilos.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">color: green; font-weight: bold;</span>
+          <span class="anno-val"><strong>Estado deseado, no pasos.</strong> El equivalente imperativo sería: <em>element.style.color = "green"; element.style.fontWeight = "bold"</em>. CSS declara el resultado final; el navegador decide cuándo y cómo aplicarlo, incluyendo cascada e herencia.</span>
+        </div>
       </div>
       <p class="section-hd">Dónde se usa</p>
       <div class="uc-grid">
@@ -853,6 +1041,29 @@ sensor.emitir('temperatura', 38.2);
 // → ALERTA: fiebre (38.2°C)
 // → Registrado: 38.2°C — total: 2 lecturas</code></pre>
       </div>
+      <div class="anno">
+        <div class="anno-title">¿Por qué esto es reactivo?</div>
+        <div class="anno-row">
+          <span class="anno-key">this._subs = {}</span>
+          <span class="anno-val"><strong>Registro de suscriptores.</strong> El núcleo del patrón reactivo: un mapa de "¿quién quiere saber qué?". Los emisores no conocen a sus receptores — solo notifican por nombre de evento. Esto es desacoplamiento total.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">sensor.on('temperatura', fn)</span>
+          <span class="anno-val"><strong>Suscripción a un flujo.</strong> El suscriptor dice "avísame cuando llegue un dato de temperatura". No pregunta activamente (polling) — el sistema lo llama cuando el dato cambia. Esto es la esencia reactiva: reacción vs. consulta.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">sensor.emitir('temperatura', 38.2)</span>
+          <span class="anno-val"><strong>Propagación de cambio.</strong> Un solo emit dispara todos los suscriptores de ese evento en orden. El emisor no sabe cuántos son ni qué hacen — máximo desacoplamiento. En React/Vue esto ocurre al mutar el estado.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">if (temp &gt; 37.5) console.log(`ALERTA...`)</span>
+          <span class="anno-val"><strong>Lógica independiente por suscriptor.</strong> Cada receptor define su propia reacción sin afectar a los demás. Se pueden agregar o quitar suscriptores sin tocar el emisor — la arquitectura se extiende sin modificar el código existente.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">historial.push({ temp, hora: ... })</span>
+          <span class="anno-val"><strong>Dos suscriptores al mismo flujo.</strong> La alerta y el historial escuchan el mismo evento pero reaccionan diferente. En una UI, esto equivale a que el gráfico, el indicador y el log se actualicen solos cuando llega el mismo dato nuevo.</span>
+        </div>
+      </div>
       <p class="section-hd">Dónde se usa</p>
       <div class="uc-grid">
         <div class="uc"><strong>Interfaces reactivas</strong><p>React, Vue: la UI se actualiza sola cuando cambia el estado.</p></div>
@@ -921,6 +1132,29 @@ ancestro(X, Y) :- progenitor(X, Z), ancestro(Z, Y).
 % ?- hermano(sofia, X).        →  X = miguel
 % ?- ancestro(carlos, paula).  →  true  (carlos→luis→paula)</code></pre>
       </div>
+      <div class="anno">
+        <div class="anno-title">¿Por qué esto es lógico?</div>
+        <div class="anno-row">
+          <span class="anno-key">progenitor(carlos, ana).</span>
+          <span class="anno-val"><strong>Hecho.</strong> Una afirmación incondicional: "carlos es progenitor de ana". No hay asignación de variables ni pasos a seguir. El motor de inferencia almacena esto como verdad absoluta en su base de conocimiento.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">padre(X, Y) :- progenitor(X, Y), masculino(X).</span>
+          <span class="anno-val"><strong>Regla.</strong> Se lee: "X es padre de Y <em>si</em> X es progenitor de Y <em>y</em> X es masculino". El operador <code>:-</code> es el "si" lógico. Declaramos la relación; el motor deduce quién cumple la condición.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">abuelo(X, Z) :- progenitor(X, Y), progenitor(Y, Z).</span>
+          <span class="anno-val"><strong>Composición de hechos.</strong> La relación abuelo se define como dos relaciones progenitor encadenadas a través de un Y intermedio. El motor buscará automáticamente todos los Y posibles usando backtracking.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">ancestro(X, Y) :- progenitor(X, Z), ancestro(Z, Y).</span>
+          <span class="anno-val"><strong>Recursividad lógica.</strong> ancestro se define en términos de sí mismo. El motor de inferencia recorre el árbol familiar a cualquier profundidad sin que nosotros programemos el recorrido ni los casos de parada explícitamente.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">?- hermano(sofia, X).</span>
+          <span class="anno-val"><strong>Consulta con variable libre.</strong> X es una incógnita. Prolog busca qué valor hace verdadera la regla. No ejecutamos procedimientos — respondemos preguntas. El motor prueba todas las posibilidades con backtracking y devuelve las que funcionan.</span>
+        </div>
+      </div>
       <div class="code-wrap">
         <div class="code-label">Prolog — Colorear un mapa (restricciones)</div>
         <pre><code class="language-prolog">% Regiones adyacentes no pueden tener el mismo color
@@ -936,6 +1170,25 @@ colorear(CA, CB, CC, CD) :-
 % ?- colorear(CA, CB, CC, CD).
 % El motor aplica backtracking sobre todas las combinaciones
 % → CA=rojo, CB=verde, CC=azul, CD=rojo  (entre otras soluciones)</code></pre>
+      </div>
+      <div class="anno">
+        <div class="anno-title">¿Por qué esto es lógico? (restricciones)</div>
+        <div class="anno-row">
+          <span class="anno-key">color(rojo). color(verde). color(azul).</span>
+          <span class="anno-val"><strong>Dominio declarado como hechos.</strong> No creamos arrays ni enumeraciones — son hechos que el motor usa para generar candidatos automáticamente. El dominio de posibilidades es conocimiento, no una estructura de datos.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">adyacente(a, b). adyacente(b, c). ...</span>
+          <span class="anno-val"><strong>Restricciones del problema como hechos.</strong> El grafo de adyacencia es conocimiento declarativo. No escribimos una función que chequee vecinos — Prolog consulta estos hechos durante el backtracking para validar candidatos.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">color(CA), color(CB), color(CC), color(CD)</span>
+          <span class="anno-val"><strong>Generación por backtracking.</strong> El motor prueba cada combinación de colores para CA, CB, CC, CD. Son 3⁴ = 81 combinaciones posibles — nosotros no escribimos ese código de prueba exhaustiva. El motor lo hace solo.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">CA \= CB, CB \= CC, CA \= CC, CC \= CD</span>
+          <span class="anno-val"><strong>Restricciones declaradas, poda automática.</strong> Decimos qué debe ser falso. Cuando el motor encuentra una combinación que viola una restricción, hace backtracking inmediato y prueba la siguiente opción. No programamos ese rechazo.</span>
+        </div>
       </div>
       <p class="section-hd">Dónde se usa</p>
       <div class="uc-grid">
@@ -1027,6 +1280,29 @@ func main() {
 // → Descargado [1]: fidelitas.ac.cr/cursos  ...
 // → Total: 1.00s</code></pre>
       </div>
+      <div class="anno">
+        <div class="anno-title">¿Por qué esto es concurrente?</div>
+        <div class="anno-row">
+          <span class="anno-key">go descargar(url, i+1, &amp;wg, resultados)</span>
+          <span class="anno-val"><strong>Lanzamiento de goroutine.</strong> La palabra clave <code>go</code> lanza la función en una goroutine independiente — una unidad de ejecución extremadamente ligera (~2 KB de stack inicial). El bucle continúa sin esperar que termine. Esto es lo que hace el código concurrente.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">resultados := make(chan string, len(urls))</span>
+          <span class="anno-val"><strong>Canal tipado.</strong> Los canales son el mecanismo de comunicación entre goroutines. En lugar de compartir memoria (fuente de race conditions), las goroutines se envían mensajes a través del canal. Es el lema de Go: "No comuniques compartiendo memoria; compartí memoria comunicando".</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">defer wg.Done()</span>
+          <span class="anno-val"><strong>Coordinación con WaitGroup.</strong> Cada goroutine avisa cuando termina. <code>defer</code> garantiza que Done() se llame aunque la función falle con un panic. Sin coordinación explícita no sabríamos cuándo terminaron todas.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">res &lt;- fmt.Sprintf(...)</span>
+          <span class="anno-val"><strong>Envío al canal.</strong> La goroutine deposita su resultado. Si el canal estuviera lleno, se bloquearía aquí — sincronización implícita. El canal serializa los accesos concurrentes de forma segura sin necesidad de locks explícitos.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">// El orden de llegada es no-determinista</span>
+          <span class="anno-val"><strong>No-determinismo inherente.</strong> Las goroutines terminan según el scheduler del SO y la red. El comportamiento exacto varía entre ejecuciones — y está diseñado así. En concurrencia no se garantiza orden, solo completitud.</span>
+        </div>
+      </div>
       <div class="code-wrap">
         <div class="code-label">Python — Race condition y su solución</div>
         <pre><code class="language-python"># El bug clásico de concurrencia y cómo prevenirlo
@@ -1065,6 +1341,29 @@ print(f"Sin lock:   {contador_inseguro:,}   ← distinto en cada ejecución")
 print(f"Con lock:   {contador_seguro:,}   ← correcto siempre")
 # → Sin lock:   347,821
 # → Con lock:   500,000</code></pre>
+      </div>
+      <div class="anno">
+        <div class="anno-title">¿Por qué esto es concurrente? (race condition)</div>
+        <div class="anno-row">
+          <span class="anno-key">contador_inseguro += 1</span>
+          <span class="anno-val"><strong>Operación no atómica.</strong> Esta línea son 3 pasos a nivel CPU: leer el valor, sumarle 1, escribirlo de vuelta. Si dos hilos leen el mismo valor antes de que alguno escriba, ambos escriben el mismo incremento y se pierde una cuenta. Esto es el race condition.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">threading.Thread(target=incrementar_inseguro)</span>
+          <span class="anno-val"><strong>Hilo de sistema operativo.</strong> A diferencia de goroutines de Go (~2KB), los threads de Python mapean a threads del SO (~1MB de stack). Todos comparten el mismo espacio de memoria del proceso — ahí nace el peligro cuando acceden a variables globales.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">lock = threading.Lock()</span>
+          <span class="anno-val"><strong>Mutex (exclusión mutua).</strong> Solo un hilo puede tener el lock en un momento dado. Los demás se bloquean esperando en <code>with lock:</code>. Es la solución fundamental al race condition — pero serializa el acceso y tiene costo de rendimiento.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">with lock: contador_seguro += 1</span>
+          <span class="anno-val"><strong>Sección crítica protegida.</strong> El bloque <code>with lock:</code> garantiza que solo un hilo ejecuta el incremento a la vez. Los 3 pasos CPU (leer, sumar, escribir) ahora suceden atómicamente desde la perspectiva del programa.</span>
+        </div>
+        <div class="anno-row">
+          <span class="anno-key">for h in hi: h.join()</span>
+          <span class="anno-val"><strong>Sincronización al final.</strong> <code>join()</code> bloquea el hilo principal hasta que cada hilo termine. Sin esta sincronización el programa principal podría imprimir los contadores antes de que los hilos hayan terminado de incrementar.</span>
+        </div>
       </div>
       <p class="section-hd">Dónde se usa</p>
       <div class="uc-grid">
