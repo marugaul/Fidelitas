@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SC-250 · Paradigmas de Programación — Universidad Fidelitas</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,300&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:ital,wght@0,400;0,600;1,400&display=swap">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <style>
+
+/* ─── TOKENS ──────────────────────────────── */
+:root {
+  --bg:          #F7F6F2;
+  --surface:     #FFFFFF;
+  --code-bg:     #0D1117;
+  --code-text:   #E6EDF3;
+  --text:        #111118;
+  --sub:         #4B4A5E;
+  --muted:       #8F8DA4;
+  --rule:        #E2E0DA;
+  --rule-strong: #CAC8C0;
+  --accent:      #1A46CC;
+  --sidebar-w:   200px;
+  --top-h:       52px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:          #0F0E17;
+    --surface:     #181724;
+    --code-bg:     #0B0A12;
+    --code-text:   #CDD4E0;
+    --text:        #ECEAF6;
+    --sub:         #9896B2;
+    --muted:       #5C5A78;
+    --rule:        #22203A;
+    --rule-strong: #302E50;
+    --accent:      #5B8DF6;
+  }
+}
+:root[data-theme="dark"] {
+  --bg:          #0F0E17;
+  --surface:     #181724;
+  --code-bg:     #0B0A12;
+  --code-text:   #CDD4E0;
+  --text:        #ECEAF6;
+  --sub:         #9896B2;
+  --muted:       #5C5A78;
+  --rule:        #22203A;
+  --rule-strong: #302E50;
+  --accent:      #5B8DF6;
+}
+
+/* ─── BASE ────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.65;
+  min-height: 100vh;
+}
+em { font-style: italic; }
+strong { font-weight: 600; }
+
+/* ─── TOPBAR ──────────────────────────────── */
+.topbar {
+  height: var(--top-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  padding-inline: 24px;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.site-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--text);
+}
+.site-id span { color: var(--muted); font-weight: 400; }
+.topbar-sep { flex: 1; }
+.theme-btn {
+  background: none;
+  border: 1px solid var(--rule-strong);
+  border-radius: 5px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  color: var(--sub);
+  transition: border-color 0.15s;
+}
+.theme-btn:hover { border-color: var(--muted); }
+
+/* ─── LAYOUT ──────────────────────────────── */
+.shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  min-height: calc(100vh - var(--top-h));
+}
+
+/* ─── SIDEBAR ─────────────────────────────── */
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--rule);
+  position: sticky;
+  top: var(--top-h);
+  height: calc(100vh - var(--top-h));
+  overflow-y: auto;
+  padding: 28px 0 48px;
+}
+.nav-group {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0 20px 12px;
+}
+.nav-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 20px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--sub);
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  text-align: left;
+  border-left: 2px solid transparent;
+  transition: color 0.1s;
+}
+.nav-item:hover { color: var(--text); }
+.nav-item.on {
+  color: var(--text);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+.nav-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  margin-left: auto;
+}
+.nav-item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+/* ─── MAIN ────────────────────────────────── */
+.main {
+  padding: 56px 52px 96px;
+  max-width: 840px;
+}
+
+/* ─── PANELS ──────────────────────────────── */
+.panel { display: none; }
+.panel.on { display: block; }
+
+/* ─── PARADIGM HEADER ─────────────────────── */
+.p-num-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+  display: block;
+}
+.p-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  margin-bottom: 20px;
+  color: var(--text);
+}
+.p-title em {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--accent);
+}
+.p-desc {
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--sub);
+  max-width: 62ch;
+  margin-bottom: 28px;
+}
+.p-desc strong { color: var(--text); }
+
+/* ─── DIVIDER ─────────────────────────────── */
+hr { border: none; border-top: 1px solid var(--rule); margin: 32px 0; }
+
+/* ─── CONCEPTS ────────────────────────────── */
+.concepts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 36px;
+}
+.concept {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 3px;
+  border: 1px solid var(--rule-strong);
+  color: var(--sub);
+  background: var(--bg);
+}
+
+/* ─── CODE BLOCKS ─────────────────────────── */
+.code-wrap { margin-bottom: 32px; }
+.code-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+  padding-left: 2px;
+}
+pre {
+  margin: 0;
+  border-radius: 6px;
+  overflow-x: auto;
+  border: 1px solid #30363D;
+}
+pre code.hljs {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 12.5px !important;
+  line-height: 1.7 !important;
+  padding: 20px 22px !important;
+  border-radius: 6px;
+  background: var(--code-bg) !important;
+  color: var(--code-text) !important;
+  display: block;
+}
+
+/* ─── HLJS — GitHub Dark tones ────────────── */
+.hljs-comment, .hljs-quote { color: #6E7781; font-style: italic; }
+.hljs-keyword, .hljs-selector-tag, .hljs-subst { color: #FF7B72; }
+.hljs-string, .hljs-attr, .hljs-doctag { color: #A5D6FF; }
+.hljs-number, .hljs-literal { color: #79C0FF; }
+.hljs-title, .hljs-section { color: #D2A8FF; font-weight: 600; }
+.hljs-built_in { color: #FFA657; }
+.hljs-type { color: #7EE787; }
+.hljs-meta { color: #FFA657; }
+.hljs-punctuation { color: #8B949E; }
+
+/* ─── USE CASES ───────────────────────────── */
+.section-hd {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+.uc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+  gap: 10px;
+  margin-bottom: 36px;
+}
+.uc {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-top: 2px solid var(--accent);
+  border-radius: 4px;
+  padding: 14px 16px;
+}
+.uc strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+.uc p { font-size: 12.5px; color: var(--sub); line-height: 1.5; }
+
+/* ─── PROS / CONS ─────────────────────────── */
+.procons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 40px;
+}
+.pc {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 16px 18px;
+}
+.pc h4 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.pc.pros h4 { color: #1A7F4B; }
+.pc.cons h4 { color: #C23B22; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .pc.pros h4 { color: #3FB87D; }
+  :root:not([data-theme="light"]) .pc.cons h4 { color: #F48172; }
+}
+:root[data-theme="dark"] .pc.pros h4 { color: #3FB87D; }
+:root[data-theme="dark"] .pc.cons h4 { color: #F48172; }
+.pc ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.pc li {
+  font-size: 13px;
+  color: var(--sub);
+  padding-left: 18px;
+  position: relative;
+  line-height: 1.45;
+}
+.pc.pros li::before { content: '+'; position: absolute; left: 0; color: #1A7F4B; font-weight: 700; }
+.pc.cons li::before { content: '−'; position: absolute; left: 0; color: #C23B22; font-weight: 700; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .pc.pros li::before { color: #3FB87D; }
+  :root:not([data-theme="light"]) .pc.cons li::before { color: #F48172; }
+}
+:root[data-theme="dark"] .pc.pros li::before { color: #3FB87D; }
+:root[data-theme="dark"] .pc.cons li::before { color: #F48172; }
+
+/* ─── RESPONSIVE ──────────────────────────── */
+@media (max-width: 680px) {
+  .shell { grid-template-columns: 1fr; }
+  .sidebar {
+    position: static;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 6px 0 4px;
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .sidebar::-webkit-scrollbar { display: none; }
+  .nav-group { display: none; }
+  .nav-item {
+    white-space: nowrap;
+    border-left: none;
+    border-bottom: 2px solid transparent;
+    padding: 8px 14px;
+    flex-shrink: 0;
+    font-size: 12px;
+  }
+  .nav-item.on { border-left: none; border-bottom-color: var(--accent); }
+  .nav-num { display: none; }
+  .main { padding: 28px 18px 60px; }
+  .p-title { font-size: 30px; }
+  .procons { grid-template-columns: 1fr; }
+  .site-id span { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="topbar">
+  <span class="site-id">SC-250 <span>· Paradigmas de Programación · Universidad Fidelitas</span></span>
+  <span class="topbar-sep"></span>
+  <button class="theme-btn" onclick="toggleTheme()" id="tbtn">Modo oscuro</button>
+</header>
+
+<div class="shell">
+
+  <!-- NAV -->
+  <nav class="sidebar">
+    <div class="nav-group">Paradigmas</div>
+    <button class="nav-item on" onclick="show(0,this)" aria-current="true">
+      Imperativo <span class="nav-num">01</span>
+    </button>
+    <button class="nav-item" onclick="show(1,this)">
+      Procedimental <span class="nav-num">02</span>
+    </button>
+    <button class="nav-item" onclick="show(2,this)">
+      Orientado a Objetos <span class="nav-num">03</span>
+    </button>
+    <button class="nav-item" onclick="show(3,this)">
+      Funcional <span class="nav-num">04</span>
+    </button>
+    <button class="nav-item" onclick="show(4,this)">
+      Declarativo <span class="nav-num">05</span>
+    </button>
+    <button class="nav-item" onclick="show(5,this)">
+      Reactivo <span class="nav-num">06</span>
+    </button>
+    <button class="nav-item" onclick="show(6,this)">
+      Lógico <span class="nav-num">07</span>
+    </button>
+    <button class="nav-item" onclick="show(7,this)">
+      Concurrente <span class="nav-num">08</span>
+    </button>
+  </nav>
+
+  <main class="main">
+
+    <!-- ── 01. IMPERATIVO ── -->
+    <section class="panel on" id="p0">
+      <span class="p-num-label">Paradigma 01 / 08</span>
+      <h1 class="p-title">Programación<br><em>Imperativa</em></h1>
+      <p class="p-desc">
+        Le dices a la computadora <strong>exactamente cómo</strong> hacer cada cosa, paso a paso.
+        El programa es una secuencia de instrucciones que van cambiando el estado de las variables.
+        Es el paradigma más cercano al hardware — así funciona la máquina debajo de todo.
+        Lenguajes representativos: C, Pascal.
+      </p>
+      <div class="concepts">
+        <span class="concept">estado mutable</span>
+        <span class="concept">variables</span>
+        <span class="concept">bucles</span>
+        <span class="concept">condicionales</span>
+        <span class="concept">secuencia de pasos</span>
+        <span class="concept">asignación</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Python</div>
+        <pre><code class="language-python"># Suma de cuadrados de números pares del 1 al 10
+# Instrucción por instrucción — el programador controla todo
+
+total = 0
+i = 1
+
+while i <= 10:
+    if i % 2 == 0:               # ¿Es par?
+        cuadrado = i * i
+        total = total + cuadrado
+    i = i + 1
+
+print("Suma de cuadrados de pares:", total)
+# → 220   (4 + 16 + 36 + 64 + 100)</code></pre>
+      </div>
+      <p class="section-hd">Dónde se usa</p>
+      <div class="uc-grid">
+        <div class="uc"><strong>Scripts de automatización</strong><p>Tareas repetitivas donde el orden de los pasos importa.</p></div>
+        <div class="uc"><strong>Algoritmos de bajo nivel</strong><p>Control total del flujo para optimizar el rendimiento.</p></div>
+        <div class="uc"><strong>Manipulación de archivos</strong><p>Procesar línea por línea con control explícito del estado.</p></div>
+      </div>
+      <p class="section-hd">Ventajas y desventajas</p>
+      <div class="procons">
+        <div class="pc pros"><h4>Ventajas</h4><ul>
+          <li>Intuitivo — se piensa como una receta</li>
+          <li>Control total sobre cada paso</li>
+          <li>Eficiente en uso de memoria</li>
+        </ul></div>
+        <div class="pc cons"><h4>Desventajas</h4><ul>
+          <li>Difícil de razonar en programas grandes</li>
+          <li>Propenso a efectos secundarios</li>
+          <li>Código difícil de reutilizar</li>
+        </ul></div>
+      </div>
+    </section>
+
+    <!-- ── 02. PROCEDIMENTAL ── -->
+    <section class="panel" id="p1">
+      <span class="p-num-label">Paradigma 02 / 08</span>
+      <h1 class="p-title">Programación<br><em>Procedimental</em></h1>
+      <p class="p-desc">
+        Evolución del imperativo: en lugar de repetir instrucciones, se agrupan en
+        <strong>funciones o procedimientos</strong> con nombre. Cada función resuelve
+        una tarea específica y puede llamarse desde cualquier parte del programa.
+        Divide el problema en subproblemas más pequeños. Lenguajes: C, Pascal.
+      </p>
+      <div class="concepts">
+        <span class="concept">funciones</span>
+        <span class="concept">procedimientos</span>
+        <span class="concept">modularidad</span>
+        <span class="concept">reutilización</span>
+        <span class="concept">parámetros</span>
+        <span class="concept">llamadas anidadas</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Python</div>
+        <pre><code class="language-python"># Ordenamiento burbuja con funciones reutilizables
+# Cada función tiene una sola responsabilidad
+
+def es_mayor(a, b):
+    return a > b
+
+def intercambiar(lista, i, j):
+    lista[i], lista[j] = lista[j], lista[i]
+
+def burbuja(lista):
+    n = len(lista)
+    for i in range(n):
+        for j in range(0, n - i - 1):
+            if es_mayor(lista[j], lista[j + 1]):
+                intercambiar(lista, j, j + 1)
+    return lista
+
+def imprimir_resultado(original, ordenada):
+    print("Original:", original)
+    print("Ordenada:", ordenada)
+
+notas = [7.5, 9.2, 4.8, 8.0, 6.3]
+resultado = burbuja(notas.copy())
+imprimir_resultado(notas, resultado)
+# → Original: [7.5, 9.2, 4.8, 8.0, 6.3]
+# → Ordenada: [4.8, 6.3, 7.5, 8.0, 9.2]</code></pre>
+      </div>
+      <p class="section-hd">Dónde se usa</p>
+      <div class="uc-grid">
+        <div class="uc"><strong>Programas en C</strong><p>Sistemas embebidos y código de sistema con funciones bien definidas.</p></div>
+        <div class="uc"><strong>Herramientas CLI</strong><p>Lógica dividida en operaciones específicas y reutilizables.</p></div>
+        <div class="uc"><strong>Procesamiento de datos</strong><p>Pipelines de transformación con pasos claros y separados.</p></div>
+      </div>
+      <p class="section-hd">Ventajas y desventajas</p>
+      <div class="procons">
+        <div class="pc pros"><h4>Ventajas</h4><ul>
+          <li>Código organizado y reutilizable</li>
+          <li>Más fácil de depurar por partes</li>
+          <li>Divide problemas complejos en tareas</li>
+        </ul></div>
+        <div class="pc cons"><h4>Desventajas</h4><ul>
+          <li>Puede haber estado global accidental</li>
+          <li>Escalabilidad limitada en proyectos grandes</li>
+          <li>Sin encapsulamiento real de datos</li>
+        </ul></div>
+      </div>
+    </section>
+
+    <!-- ── 03. OOP ── -->
+    <section class="panel" id="p2">
+      <span class="p-num-label">Paradigma 03 / 08</span>
+      <h1 class="p-title">Orientada<br><em>a Objetos</em></h1>
+      <p class="p-desc">
+        Organiza el código en <strong>objetos</strong> que combinan datos (atributos) y
+        comportamiento (métodos). Los objetos son instancias de clases y se relacionan
+        mediante herencia, encapsulamiento y polimorfismo. Permite modelar el mundo real
+        directamente en el código.
+      </p>
+      <div class="concepts">
+        <span class="concept">clases</span>
+        <span class="concept">objetos</span>
+        <span class="concept">herencia</span>
+        <span class="concept">encapsulamiento</span>
+        <span class="concept">polimorfismo</span>
+        <span class="concept">abstracción</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Python</div>
+        <pre><code class="language-python"># Figuras geométricas con herencia y polimorfismo
+import math
+
+class Figura:
+    def __init__(self, color):
+        self.__color = color        # Privado — encapsulamiento
+
+    def color(self):
+        return self.__color
+
+    def area(self):                 # Abstracto — cada clase lo define
+        raise NotImplementedError
+
+    def describir(self):
+        return f"{type(self).__name__} {self.__color}: área = {self.area():.2f}"
+
+
+class Circulo(Figura):
+    def __init__(self, color, radio):
+        super().__init__(color)
+        self.radio = radio
+
+    def area(self):                 # Polimorfismo: mismo nombre, distinto cálculo
+        return math.pi * self.radio ** 2
+
+
+class Rectangulo(Figura):
+    def __init__(self, color, ancho, alto):
+        super().__init__(color)
+        self.ancho = ancho
+        self.alto  = alto
+
+    def area(self):
+        return self.ancho * self.alto
+
+
+class Triangulo(Figura):
+    def __init__(self, color, base, altura):
+        super().__init__(color)
+        self.base   = base
+        self.altura = altura
+
+    def area(self):
+        return (self.base * self.altura) / 2
+
+
+# Mismo método .describir() en cada objeto — polimorfismo en acción
+figuras = [
+    Circulo("rojo", 5),
+    Rectangulo("azul", 4, 6),
+    Triangulo("verde", 3, 8),
+]
+
+for f in figuras:
+    print(f.describir())
+# → Circulo rojo: área = 78.54
+# → Rectangulo azul: área = 24.00
+# → Triangulo verde: área = 12.00</code></pre>
+      </div>
+      <p class="section-hd">Dónde se usa</p>
+      <div class="uc-grid">
+        <div class="uc"><strong>Videojuegos</strong><p>Personajes, objetos y escenarios como clases con comportamientos propios.</p></div>
+        <div class="uc"><strong>Aplicaciones empresariales</strong><p>Modelos de dominio: Cliente, Factura, Producto encapsulados.</p></div>
+        <div class="uc"><strong>Interfaces gráficas</strong><p>Botones, ventanas y controles como objetos con eventos y estado.</p></div>
+      </div>
+      <p class="section-hd">Ventajas y desventajas</p>
+      <div class="procons">
+        <div class="pc pros"><h4>Ventajas</h4><ul>
+          <li>Modela el mundo real de forma natural</li>
+          <li>Reutilización por herencia</li>
+          <li>Alta escalabilidad en proyectos grandes</li>
+        </ul></div>
+        <div class="pc cons"><h4>Desventajas</h4><ul>
+          <li>Jerarquías profundas difíciles de mantener</li>
+          <li>Overhead innecesario para tareas simples</li>
+          <li>Estado compartido puede causar bugs sutiles</li>
+        </ul></div>
+      </div>
+    </section>
+
+    <!-- ── 04. FUNCIONAL ── -->
+    <section class="panel" id="p3">
+      <span class="p-num-label">Paradigma 04 / 08</span>
+      <h1 class="p-title">Programación<br><em>Funcional</em></h1>
+      <p class="p-desc">
+        Trata la computación como evaluación de <strong>funciones matemáticas puras</strong>.
+        Sin estado mutable, sin efectos secundarios. El mismo input siempre produce
+        el mismo output. Las funciones se pasan como argumentos, se devuelven como valores
+        y se componen. Lenguajes: Haskell, Lisp, Erlang.
+      </p>
+      <div class="concepts">
+        <span class="concept">funciones puras</span>
+        <span class="concept">inmutabilidad</span>
+        <span class="concept">composición</span>
+        <span class="concept">map / filter / reduce</span>
+        <span class="concept">lambdas</span>
+        <span class="concept">recursión</span>
+        <span class="concept">sin efectos secundarios</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Python</div>
+        <pre><code class="language-python"># Procesar calificaciones con funciones puras
+# Ninguna función modifica los datos originales
+from functools import reduce
+
+calificaciones = [4.5, 8.2, 9.0, 3.7, 7.5, 8.8, 5.1, 9.5]
+
+# Funciones puras: mismo input → mismo output, siempre
+aprobado      = lambda nota: nota >= 6.0
+al_porcentaje = lambda nota: round((nota / 10) * 100, 1)
+sumar         = lambda a, b: a + b
+
+# Composición: filtrar → transformar → reducir
+aprobados   = list(filter(aprobado, calificaciones))
+porcentajes = list(map(al_porcentaje, aprobados))
+total       = reduce(sumar, porcentajes, 0)
+promedio    = total / len(porcentajes)
+
+def estadisticas(notas):            # También pura: no modifica 'notas'
+    ordenadas = sorted(notas)
+    return {
+        "min":   ordenadas[0],
+        "max":   ordenadas[-1],
+        "media": reduce(sumar, notas, 0) / len(notas),
+    }
+
+print("Aprobados: ", aprobados)
+print("Promedio:  ", promedio, "%")
+print("Stats:     ", estadisticas(aprobados))
+# → Aprobados:  [8.2, 9.0, 7.5, 8.8, 9.5]
+# → Promedio:   86.0 %
+# → Stats:      {'min': 7.5, 'max': 9.5, 'media': 8.6}</code></pre>
+      </div>
+      <p class="section-hd">Dónde se usa</p>
+      <div class="uc-grid">
+        <div class="uc"><strong>Procesamiento de datos</strong><p>Transformaciones en pipelines: ETL, análisis, reportes.</p></div>
+        <div class="uc"><strong>Concurrencia</strong><p>Sin estado mutable, no hay condiciones de carrera al paralelizar.</p></div>
+        <div class="uc"><strong>Testing</strong><p>Funciones puras son trivialmente testeables — sin mocks ni setup.</p></div>
+      </div>
+      <p class="section-hd">Ventajas y desventajas</p>
+      <div class="procons">
+        <div class="pc pros"><h4>Ventajas</h4><ul>
+          <li>Código predecible y fácil de probar</li>
+          <li>Seguro en contextos concurrentes</li>
+          <li>Composición produce código conciso</li>
+        </ul></div>
+        <div class="pc cons"><h4>Desventajas</h4><ul>
+          <li>Curva alta (mónadas, recursión profunda)</li>
+          <li>Puede crear muchas copias de datos en memoria</li>
+          <li>No encaja bien con I/O o estado inherente</li>
+        </ul></div>
+      </div>
+    </section>
+
+    <!-- ── 05. DECLARATIVO ── -->
+    <section class="panel" id="p4">
+      <span class="p-num-label">Paradigma 05 / 08</span>
+      <h1 class="p-title">Programación<br><em>Declarativa</em></h1>
+      <p class="p-desc">
+        Describes <strong>qué</strong> querés obtener, no <strong>cómo</strong> lograrlo.
+        El programador declara el objetivo y el motor o intérprete decide la mejor estrategia.
+        SQL es el ejemplo más conocido: describes la consulta y la base de datos decide
+        si usar un índice, un escaneo completo, etc.
+      </p>
+      <div class="concepts">
+        <span class="concept">qué vs cómo</span>
+        <span class="concept">expresiones</span>
+        <span class="concept">sin efectos secundarios</span>
+        <span class="concept">alto nivel de abstracción</span>
+        <span class="concept">el motor optimiza</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">SQL</div>
+        <pre><code class="language-sql">-- Tabla: estudiantes
+-- id | nombre       | nota | carrera
+-- ---|--------------|------|----------
+-- 1  | Ana García   | 9.2  | Sistemas
+-- 2  | Luis Mora    | 7.5  | Informática
+-- 3  | Sara López   | 8.8  | Sistemas
+-- 4  | Pedro Ruiz   | 5.9  | Sistemas
+
+-- Declaramos QUÉ queremos — el motor decide CÓMO buscarlo
+SELECT
+    nombre,
+    nota,
+    CASE
+        WHEN nota >= 9.0 THEN 'Sobresaliente'
+        WHEN nota >= 7.0 THEN 'Notable'
+        ELSE 'Aprobado'
+    END AS distincion
+FROM estudiantes
+WHERE carrera = 'Sistemas'
+  AND nota >= 6.0
+ORDER BY nota DESC;
+
+-- Resultado:
+-- Ana García  | 9.2 | Sobresaliente
+-- Sara López  | 8.8 | Notable</code></pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">HTML + CSS</div>
+        <pre><code class="language-html">&lt;!-- Declaramos ESTRUCTURA y ESTILO, no el algoritmo de render --&gt;
+&lt;style&gt;
+  .tarjeta {
+    display: flex;       /* El navegador decide cómo distribuir */
+    gap: 16px;
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .nota-alta { color: green; font-weight: bold; }
+&lt;/style&gt;
+
+&lt;div class="tarjeta"&gt;
+  &lt;span&gt;Ana García&lt;/span&gt;
+  &lt;span class="nota-alta"&gt;9.2&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+      </div>
+      <p class="section-hd">Dónde se usa</p>
+      <div class="uc-grid">
+        <div class="uc"><strong>Bases de datos (SQL)</strong><p>Consultas complejas sin escribir algoritmos de búsqueda.</p></div>
+        <div class="uc"><strong>Interfaces web (HTML/CSS)</strong><p>Estructura y estilo sin código de renderizado manual.</p></div>
+        <div class="uc"><strong>Infraestructura (Terraform)</strong><p>Declarar el estado deseado del sistema, no los pasos para llegar.</p></div>
+      </div>
+      <p class="section-hd">Ventajas y desventajas</p>
+      <div class="procons">
+        <div class="pc pros"><h4>Ventajas</h4><ul>
+          <li>Código muy legible y conciso</li>
+          <li>El motor puede optimizar mejor que nosotros</li>
+          <li>Menos errores de lógica de control</li>
+        </ul></div>
+        <div class="pc cons"><h4>Desventajas</h4><ul>
+          <li>Menor control sobre el rendimiento</li>
+          <li>Depuración más difícil (el motor es opaco)</li>
+          <li>Dependiente de las capacidades del intérprete</li>
+        </ul></div>
+      </div>
+    </section>
+
+    <!-- ── 06. REACTIVO ── -->
+    <section class="panel" id="p5">
+      <span class="p-num-label">Paradigma 06 / 08</span>
+      <h1 class="p-title">Programación<br><em>Reactiva</em></h1>
+      <p class="p-desc">
+        El programa reacciona a <strong>flujos de datos y eventos</strong> en lugar de
+        ejecutar instrucciones en orden fijo. Los componentes se suscriben a fuentes
+        de datos y se actualizan automáticamente cuando algo cambia.
+        Es la base de frameworks modernos como React y Vue. Lenguaje representativo: JavaScript.
+      </p>
+      <div class="concepts">
+        <span class="concept">flujos de datos</span>
+        <span class="concept">eventos</span>
+        <span class="concept">observadores</span>
+        <span class="concept">suscriptores</span>
+        <span class="concept">asincronía</span>
+        <span class="concept">propagación de cambios</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">JavaScript</div>
+        <pre><code class="language-javascript">// Monitoreo de temperatura con patrón Observador
+// Los suscriptores reaccionan cuando el dato cambia
+
+class FlujoDatos {
+  constructor() {
+    this._subs = {};
+  }
+
+  on(evento, fn) {
+    if (!this._subs[evento]) this._subs[evento] = [];
+    this._subs[evento].push(fn);
+    return this;
+  }
+
+  emitir(evento, datos) {
+    (this._subs[evento] || []).forEach(fn => fn(datos));
+  }
+}
+
+const sensor = new FlujoDatos();
+
+// Cada suscriptor define su propia reacción
+sensor.on('temperatura', temp => {
+  if (temp > 37.5) console.log(`ALERTA: fiebre (${temp}°C)`);
+});
+
+const historial = [];
+sensor.on('temperatura', temp => {
+  historial.push({ temp, hora: new Date().toLocaleTimeString() });
+  console.log(`Registrado: ${temp}°C — total: ${historial.length} lecturas`);
+});
+
+sensor.emitir('temperatura', 36.5);
+// → Registrado: 36.5°C — total: 1 lecturas
+
+sensor.emitir('temperatura', 38.2);
+// → ALERTA: fiebre (38.2°C)
+// → Registrado: 38.2°C — total: 2 lecturas</code></pre>
+      </div>
+      <p class="section-hd">Dónde se usa</p>
+      <div class="uc-grid">
+        <div class="uc"><strong>Interfaces reactivas</strong><p>React, Vue: la UI se actualiza sola cuando cambia el estado.</p></div>
+        <div class="uc"><strong>Streaming de datos</strong><p>Eventos en tiempo real: precios bursátiles, mensajes, sensores.</p></div>
+        <div class="uc"><strong>Sistemas IoT</strong><p>Dispositivos que reaccionan a lecturas de sensores al instante.</p></div>
+      </div>
+      <p class="section-hd">Ventajas y desventajas</p>
+      <div class="procons">
+        <div class="pc pros"><h4>Ventajas</h4><ul>
+          <li>Maneja la asincronía elegantemente</li>
+          <li>Desacoplamiento entre emisores y receptores</li>
+          <li>Ideal para múltiples fuentes de datos</li>
+        </ul></div>
+        <div class="pc cons"><h4>Desventajas</h4><ul>
+          <li>El flujo de datos es difícil de rastrear</li>
+          <li>Cascadas de eventos generan bugs sutiles</li>
+          <li>Curva alta con RxJS y Observables</li>
+        </ul></div>
+      </div>
+    </section>
+
+    <!-- ── 07. LÓGICO ── -->
+    <section class="panel" id="p6">
+      <span class="p-num-label">Paradigma 07 / 08</span>
+      <h1 class="p-title">Programación<br><em>Lógica</em></h1>
+      <p class="p-desc">
+        Basado en lógica formal: defines <strong>hechos y reglas</strong>, y un motor de
+        inferencia calcula las respuestas. No programas el camino hacia la solución —
+        declaras lo que sabes y dejas que el motor explore con <strong>backtracking</strong>
+        todas las combinaciones posibles. Lenguaje: Prolog.
+      </p>
+      <div class="concepts">
+        <span class="concept">hechos</span>
+        <span class="concept">reglas</span>
+        <span class="concept">consultas</span>
+        <span class="concept">backtracking</span>
+        <span class="concept">unificación</span>
+        <span class="concept">motor de inferencia</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Prolog — Relaciones familiares</div>
+        <pre><code class="language-prolog">% === HECHOS: lo que sabemos que es verdad ===
+progenitor(carlos, ana).
+progenitor(carlos, luis).
+progenitor(ana,    sofia).
+progenitor(ana,    miguel).
+progenitor(luis,   paula).
+
+masculino(carlos).  masculino(luis).   masculino(miguel).
+femenino(ana).      femenino(sofia).   femenino(paula).
+
+% === REGLAS: relaciones que se derivan ===
+% "X :- Y" se lee: X es verdad SI Y es verdad
+padre(X, Y)   :- progenitor(X, Y), masculino(X).
+madre(X, Y)   :- progenitor(X, Y), femenino(X).
+abuelo(X, Z)  :- progenitor(X, Y), progenitor(Y, Z).
+hermano(X, Y) :- progenitor(Z, X), progenitor(Z, Y), X \= Y.
+
+% Recursiva: ancestro en cualquier generación
+ancestro(X, Y) :- progenitor(X, Y).
+ancestro(X, Y) :- progenitor(X, Z), ancestro(Z, Y).
+
+% === CONSULTAS — el motor infiere las respuestas ===
+% ?- padre(carlos, ana).       →  true
+% ?- abuelo(carlos, sofia).    →  true
+% ?- hermano(sofia, X).        →  X = miguel
+% ?- ancestro(carlos, paula).  →  true  (carlos→luis→paula)</code></pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Prolog — Colorear un mapa (restricciones)</div>
+        <pre><code class="language-prolog">% Regiones adyacentes no pueden tener el mismo color
+color(rojo).  color(verde).  color(azul).
+
+adyacente(a, b).  adyacente(b, c).
+adyacente(a, c).  adyacente(c, d).
+
+colorear(CA, CB, CC, CD) :-
+    color(CA), color(CB), color(CC), color(CD),
+    CA \= CB,   CB \= CC,   CA \= CC,   CC \= CD.
+
+% ?- colorear(CA, CB, CC, CD).
+% El motor aplica backtracking sobre todas las combinaciones
+% → CA=rojo, CB=verde, CC=azul, CD=rojo  (entre otras soluciones)</code></pre>
+      </div>
+      <p class="section-hd">Dónde se usa</p>
+      <div class="uc-grid">
+        <div class="uc"><strong>Sistemas expertos</strong><p>Diagnóstico médico o legal basado en reglas de conocimiento.</p></div>
+        <div class="uc"><strong>IA simbólica</strong><p>Razonamiento formal, planificación automática de tareas.</p></div>
+        <div class="uc"><strong>Restricciones (CSP)</strong><p>Horarios, asignaciones, Sudoku — el motor encuentra soluciones.</p></div>
+      </div>
+      <p class="section-hd">Ventajas y desventajas</p>
+      <div class="procons">
+        <div class="pc pros"><h4>Ventajas</h4><ul>
+          <li>Muy expresivo para modelar relaciones</li>
+          <li>El motor encuentra todas las soluciones posibles</li>
+          <li>Natural para problemas de deducción</li>
+        </ul></div>
+        <div class="pc cons"><h4>Desventajas</h4><ul>
+          <li>Rendimiento impredecible — backtracking escala mal</li>
+          <li>Poco uso en producción fuera de IA académica</li>
+          <li>Requiere cambiar la forma de pensar completamente</li>
+        </ul></div>
+      </div>
+    </section>
+
+    <!-- ── 08. CONCURRENTE ── -->
+    <section class="panel" id="p7">
+      <span class="p-num-label">Paradigma 08 / 08</span>
+      <h1 class="p-title">Programación<br><em>Concurrente y Paralela</em></h1>
+      <p class="p-desc">
+        Diseña programas que ejecutan múltiples tareas <strong>al mismo tiempo</strong>.
+        La <strong>concurrencia</strong> intercala tareas que progresan independientemente
+        (no necesariamente al mismo instante), mientras que el <strong>paralelismo</strong>
+        las ejecuta literalmente en simultáneo usando múltiples núcleos.
+        Lenguajes: Go (concurrente), CUDA (paralela en GPU).
+      </p>
+      <div class="concepts">
+        <span class="concept">goroutines</span>
+        <span class="concept">canales</span>
+        <span class="concept">hilos / threads</span>
+        <span class="concept">mutex / lock</span>
+        <span class="concept">race condition</span>
+        <span class="concept">paralelismo en GPU</span>
+        <span class="concept">concurrencia vs paralelismo</span>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Go — goroutines y canales</div>
+        <pre><code class="language-go">// Descargar 5 páginas concurrentemente
+// Sin goroutines: ~5s. Con goroutines: ~1s.
+
+package main
+
+import (
+    "fmt"
+    "sync"
+    "time"
+)
+
+func descargar(url string, id int, wg *sync.WaitGroup, res chan<- string) {
+    defer wg.Done()
+    time.Sleep(1 * time.Second)  // simula latencia de red
+    res <- fmt.Sprintf("Descargado [%d]: %s", id, url)
+}
+
+func main() {
+    urls := []string{
+        "fidelitas.ac.cr/cursos",
+        "fidelitas.ac.cr/noticias",
+        "fidelitas.ac.cr/biblioteca",
+        "fidelitas.ac.cr/campus",
+        "fidelitas.ac.cr/horarios",
+    }
+
+    resultados := make(chan string, len(urls))
+    var wg sync.WaitGroup
+    t0 := time.Now()
+
+    for i, url := range urls {
+        wg.Add(1)
+        go descargar(url, i+1, &wg, resultados)  // 'go' lanza una goroutine
+    }
+
+    go func() { wg.Wait(); close(resultados) }()
+
+    for r := range resultados {
+        fmt.Println(r)
+    }
+    fmt.Printf("Total: %.2fs  (sin go: ~5s)\n", time.Since(t0).Seconds())
+}
+// El orden de llegada es no-determinista:
+// → Descargado [3]: fidelitas.ac.cr/biblioteca
+// → Descargado [1]: fidelitas.ac.cr/cursos  ...
+// → Total: 1.00s</code></pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Python — Race condition y su solución</div>
+        <pre><code class="language-python"># El bug clásico de concurrencia y cómo prevenirlo
+import threading
+
+# ❌ SIN lock — resultado impredecible
+contador_inseguro = 0
+
+def incrementar_inseguro():
+    global contador_inseguro
+    for _ in range(100_000):
+        contador_inseguro += 1   # leer-modificar-escribir NO es atómico
+
+# ✅ CON lock — resultado garantizado
+contador_seguro = 0
+lock = threading.Lock()
+
+def incrementar_seguro():
+    global contador_seguro
+    for _ in range(100_000):
+        with lock:               # solo un hilo a la vez entra aquí
+            contador_seguro += 1
+
+# Lanzar 5 hilos para cada versión
+hi = [threading.Thread(target=incrementar_inseguro) for _ in range(5)]
+hs = [threading.Thread(target=incrementar_seguro)   for _ in range(5)]
+
+for h in hi: h.start()
+for h in hi: h.join()
+
+for h in hs: h.start()
+for h in hs: h.join()
+
+print(f"Esperado:   500,000")
+print(f"Sin lock:   {contador_inseguro:,}   ← distinto en cada ejecución")
+print(f"Con lock:   {contador_seguro:,}   ← correcto siempre")
+# → Sin lock:   347,821
+# → Con lock:   500,000</code></pre>
+      </div>
+      <p class="section-hd">Dónde se usa</p>
+      <div class="uc-grid">
+        <div class="uc"><strong>Servidores web</strong><p>Atender miles de peticiones simultáneas sin bloquear.</p></div>
+        <div class="uc"><strong>GPU / CUDA</strong><p>Miles de núcleos ejecutando operaciones matriciales en paralelo.</p></div>
+        <div class="uc"><strong>Aplicaciones de escritorio</strong><p>UI fluida mientras operaciones costosas corren en segundo plano.</p></div>
+      </div>
+      <p class="section-hd">Ventajas y desventajas</p>
+      <div class="procons">
+        <div class="pc pros"><h4>Ventajas</h4><ul>
+          <li>Aprovecha todos los núcleos del procesador</li>
+          <li>Reduce tiempos en tareas de I/O intensivo</li>
+          <li>Sistemas más responsivos y escalables</li>
+        </ul></div>
+        <div class="pc cons"><h4>Desventajas</h4><ul>
+          <li>Race conditions y deadlocks muy difíciles de depurar</li>
+          <li>Mayor complejidad de diseño y pruebas</li>
+          <li>La sincronización excesiva anula la ganancia</li>
+        </ul></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const panels  = document.querySelectorAll('.panel');
+  const navBtns = document.querySelectorAll('.nav-item');
+  const tbtn    = document.getElementById('tbtn');
+
+  function show(idx, btn) {
+    panels.forEach((p, i)  => p.classList.toggle('on', i === idx));
+    navBtns.forEach(b => { b.classList.remove('on'); b.removeAttribute('aria-current'); });
+    btn.classList.add('on');
+    btn.setAttribute('aria-current', 'true');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Theme
+  let dark = localStorage.getItem('sc250-theme') === 'dark';
+  function apply() {
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    tbtn.textContent = dark ? 'Modo claro' : 'Modo oscuro';
+    localStorage.setItem('sc250-theme', dark ? 'dark' : 'light');
+  }
+  function toggleTheme() { dark = !dark; apply(); }
+  apply();
+
+  // Syntax highlighting
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('pre code').forEach(b => hljs.highlightElement(b));
+  });
+</script>
+</body>
+</html>
