@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Autoevaluación · SC-250 · Semana 4</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,300&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@0,400;0,600&display=swap">
+<style>
+:root {
+  --bg:#F7F6F2; --surface:#FFFFFF; --text:#111118; --sub:#4B4A5E;
+  --muted:#8F8DA4; --rule:#E2E0DA; --accent:#1A46CC;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F0E17; --surface:#181724; --text:#ECEAF6; --sub:#9896B2;
+  --muted:#5C5A78; --rule:#22203A; --accent:#5B8DF6;
+}}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:0;}
+header{display:flex;align-items:center;gap:12px;padding:12px 24px;border-bottom:1px solid var(--rule);background:var(--surface);}
+header a{color:var(--muted);text-decoration:none;font-size:13px;}
+header a:hover{color:var(--accent);}
+header span{color:var(--muted);font-size:13px;}
+.page{max-width:680px;margin:0 auto;padding:32px 20px 60px;}
+h1{font-family:'Fraunces',serif;font-size:2rem;font-weight:700;margin-bottom:6px;}
+.subtitle{color:var(--sub);font-size:15px;margin-bottom:28px;}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:24px;margin-bottom:18px;}
+label{display:block;font-size:14px;font-weight:600;margin-bottom:8px;}
+input[type=text],input[type=password]{width:100%;padding:10px 14px;border:1.5px solid var(--rule);border-radius:7px;font-size:15px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);outline:none;}
+input:focus{border-color:var(--accent);}
+.criterion{margin-bottom:20px;}
+.crit-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+.crit-name{font-weight:600;font-size:14px;}
+.crit-pts{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);}
+.stars{display:flex;gap:6px;}
+.star-btn{background:none;border:2px solid var(--rule);border-radius:6px;width:48px;height:40px;cursor:pointer;font-size:13px;font-weight:600;color:var(--sub);transition:all .15s;font-family:'DM Sans',sans-serif;}
+.star-btn:hover{border-color:var(--accent);color:var(--accent);}
+.star-btn.sel{background:var(--accent);border-color:var(--accent);color:#fff;}
+.star-label{font-size:11px;color:var(--muted);margin-top:4px;}
+.btn{display:inline-block;padding:12px 28px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%;margin-top:4px;}
+.btn:hover{opacity:.88;}
+.btn.outline{background:none;border:2px solid var(--accent);color:var(--accent);}
+.score-ring{display:flex;align-items:center;justify-content:center;flex-direction:column;width:120px;height:120px;border-radius:50%;border:5px solid var(--accent);margin:0 auto 20px;}
+.score-big{font-size:2.4rem;font-weight:700;font-family:'Fraunces',serif;line-height:1;}
+.score-of{font-size:12px;color:var(--muted);}
+.breakdown{width:100%;border-collapse:collapse;font-size:14px;margin-top:12px;}
+.breakdown td,.breakdown th{padding:8px 10px;text-align:left;border-bottom:1px solid var(--rule);}
+.breakdown th{font-size:12px;color:var(--muted);font-weight:600;}
+.tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;}
+.tag.a{background:#D1FAE5;color:#065F46;} .tag.b{background:#DBEAFE;color:#1E40AF;}
+.tag.c{background:#FEF3C7;color:#92400E;} .tag.d{background:#FFE4E6;color:#9F1239;}
+.hidden{display:none!important;}
+.section-gap{margin-top:32px;}
+.muted{color:var(--muted);font-size:13px;}
+.alert{padding:12px 16px;border-radius:8px;background:#FEF3C7;color:#92400E;font-size:14px;margin-bottom:16px;}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.tbl th{background:var(--accent);color:#fff;padding:8px 10px;text-align:left;}
+.tbl td{padding:7px 10px;border-bottom:1px solid var(--rule);}
+.tbl tr:nth-child(even) td{background:var(--bg);}
+.export-btn{padding:8px 18px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:12px;}
+</style>
+</head>
+<body>
+<header>
+  <a href="index.html">← SC-250</a>
+  <span>/</span>
+  <span>Autoevaluación · Semana 4</span>
+</header>
+
+<!-- SCREEN 1: INTRO -->
+<div class="page" id="s1">
+  <h1>Autoevaluación<br><em style="font-style:italic;color:var(--accent)">Actividad Investigativa</em></h1>
+  <p class="subtitle">Califica el trabajo de tu grupo de forma honesta. Esta rúbrica cubre la calidad de la investigación y presentación.</p>
+  <div class="card">
+    <label for="nom">Tu nombre completo</label>
+    <input type="text" id="nom" placeholder="Ej. Pérez Solano María" autocomplete="off">
+    <div style="margin-top:16px;">
+      <label for="grp">Número de grupo</label>
+      <input type="text" id="grp" placeholder="Ej. 3" style="max-width:120px;">
+    </div>
+  </div>
+  <button class="btn" onclick="startEval()">Comenzar evaluación →</button>
+</div>
+
+<!-- SCREEN 2: RUBRIC -->
+<div class="page hidden" id="s2">
+  <h1>Rúbrica de Evaluación</h1>
+  <p class="subtitle">Selecciona el nivel que mejor describe el desempeño del grupo en cada criterio.</p>
+  <p class="muted" style="margin-bottom:20px;">1 = Insuficiente &nbsp;·&nbsp; 2 = En desarrollo &nbsp;·&nbsp; 3 = Competente &nbsp;·&nbsp; 4 = Avanzado &nbsp;·&nbsp; 5 = Sobresaliente</p>
+
+  <div class="card" id="crit-contenido">
+    <div class="crit-header">
+      <span class="crit-name">Contenido e Investigación</span>
+      <span class="crit-pts">30 pts</span>
+    </div>
+    <div class="stars" data-key="contenido" data-max="30"></div>
+    <div class="star-label" id="lbl-contenido">Selecciona un nivel</div>
+  </div>
+
+  <div class="card" id="crit-estructura">
+    <div class="crit-header">
+      <span class="crit-name">Estructura del Documento</span>
+      <span class="crit-pts">20 pts</span>
+    </div>
+    <div class="stars" data-key="estructura" data-max="20"></div>
+    <div class="star-label" id="lbl-estructura">Selecciona un nivel</div>
+  </div>
+
+  <div class="card" id="crit-dominio">
+    <div class="crit-header">
+      <span class="crit-name">Dominio y Exposición Oral</span>
+      <span class="crit-pts">25 pts</span>
+    </div>
+    <div class="stars" data-key="dominio" data-max="25"></div>
+    <div class="star-label" id="lbl-dominio">Selecciona un nivel</div>
+  </div>
+
+  <div class="card" id="crit-contexto">
+    <div class="crit-header">
+      <span class="crit-name">Contexto Real y Análisis</span>
+      <span class="crit-pts">15 pts</span>
+    </div>
+    <div class="stars" data-key="contexto" data-max="15"></div>
+    <div class="star-label" id="lbl-contexto">Selecciona un nivel</div>
+  </div>
+
+  <div class="card" id="crit-reflexion">
+    <div class="crit-header">
+      <span class="crit-name">Reflexión Crítica</span>
+      <span class="crit-pts">10 pts</span>
+    </div>
+    <div class="stars" data-key="reflexion" data-max="10"></div>
+    <div class="star-label" id="lbl-reflexion">Selecciona un nivel</div>
+  </div>
+
+  <button class="btn" onclick="submitEval()">Ver mi resultado →</button>
+</div>
+
+<!-- SCREEN 3: RESULT -->
+<div class="page hidden" id="s3">
+  <h1>Tu Resultado</h1>
+  <p class="subtitle" id="res-name-sub"></p>
+  <div class="card" style="text-align:center;">
+    <div class="score-ring" id="ring">
+      <span class="score-big" id="score-num">0</span>
+      <span class="score-of">/ 100</span>
+    </div>
+    <div id="grade-tag" style="margin-bottom:12px;"></div>
+    <table class="breakdown">
+      <thead><tr><th>Criterio</th><th>Nivel</th><th>Puntaje</th></tr></thead>
+      <tbody id="breakdown-body"></tbody>
+    </table>
+  </div>
+  <div style="display:flex;gap:10px;margin-top:4px;">
+    <button class="btn outline" onclick="resetEval()" style="width:50%;">← Nueva evaluación</button>
+    <button class="btn" onclick="showTeacherPrompt()" style="width:50%;">Vista del profesor</button>
+  </div>
+</div>
+
+<!-- SCREEN 4: TEACHER PASSCODE -->
+<div class="page hidden" id="s4">
+  <h1>Vista del Profesor</h1>
+  <div class="card">
+    <label for="pwd">Código de acceso</label>
+    <input type="password" id="pwd" placeholder="••••••" autocomplete="off">
+    <button class="btn" onclick="checkPwd()" style="margin-top:16px;">Entrar</button>
+    <div class="alert hidden" id="pwd-err" style="margin-top:12px;">Código incorrecto.</div>
+  </div>
+  <button class="btn outline" onclick="showScreen('s3')" style="margin-top:0;">← Volver</button>
+</div>
+
+<!-- SCREEN 5: TEACHER VIEW -->
+<div class="page hidden" id="s5">
+  <h1>Resumen del Profesor</h1>
+  <p class="subtitle">Resultados guardados en este dispositivo</p>
+  <div id="teacher-stats" class="card"></div>
+  <div id="teacher-table"></div>
+  <button class="export-btn" onclick="exportCSV()">Exportar CSV</button>
+  <div style="margin-top:16px;">
+    <button class="btn outline" onclick="showScreen('s3')">← Volver</button>
+  </div>
+</div>
+
+<script>
+const LABELS = ['Insuficiente','En desarrollo','Competente','Avanzado','Sobresaliente'];
+const CRITERIA = [
+  {key:'contenido', name:'Contenido e Investigación', max:30},
+  {key:'estructura', name:'Estructura del Documento', max:20},
+  {key:'dominio', name:'Dominio y Exposición Oral', max:25},
+  {key:'contexto', name:'Contexto Real y Análisis', max:15},
+  {key:'reflexion', name:'Reflexión Crítica', max:10},
+];
+const ratings = {};
+let currentName='', currentGroup='';
+
+function buildStars(){
+  CRITERIA.forEach(c=>{
+    const cont = document.querySelector(`.stars[data-key="${c.key}"]`);
+    for(let i=1;i<=5;i++){
+      const b = document.createElement('button');
+      b.className='star-btn';
+      b.textContent=i;
+      b.onclick=()=>selectStar(c.key,i);
+      cont.appendChild(b);
+    }
+  });
+}
+
+function selectStar(key, val){
+  ratings[key]=val;
+  const cont = document.querySelector(`.stars[data-key="${key}"]`);
+  cont.querySelectorAll('.star-btn').forEach((b,i)=>{
+    b.classList.toggle('sel', i<val);
+  });
+  document.getElementById('lbl-'+key).textContent = LABELS[val-1];
+}
+
+function showScreen(id){
+  ['s1','s2','s3','s4','s5'].forEach(s=>document.getElementById(s).classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function startEval(){
+  currentName = document.getElementById('nom').value.trim();
+  currentGroup = document.getElementById('grp').value.trim();
+  if(!currentName){alert('Por favor ingresa tu nombre.');return;}
+  showScreen('s2');
+}
+
+function submitEval(){
+  for(const c of CRITERIA){
+    if(!ratings[c.key]){alert('Por favor califica todos los criterios.');return;}
+  }
+  let total=0;
+  const tb = document.getElementById('breakdown-body');
+  tb.innerHTML='';
+  CRITERIA.forEach(c=>{
+    const pts = Math.round((ratings[c.key]/5)*c.max);
+    total+=pts;
+    tb.innerHTML+=`<tr><td>${c.name}</td><td>${ratings[c.key]} – ${LABELS[ratings[c.key]-1]}</td><td><b>${pts}/${c.max}</b></td></tr>`;
+  });
+  document.getElementById('score-num').textContent=total;
+  document.getElementById('res-name-sub').textContent=`${currentName} · Grupo ${currentGroup}`;
+  const grade = total>=90?{t:'Sobresaliente',cls:'a'}:total>=80?{t:'Avanzado',cls:'b'}:total>=70?{t:'Competente',cls:'c'}:{t:'En desarrollo',cls:'d'};
+  document.getElementById('grade-tag').innerHTML=`<span class="tag ${grade.cls}">${grade.t}</span>`;
+  // Save to localStorage
+  try{
+    const records = JSON.parse(localStorage.getItem('sc250_eval')||'[]');
+    records.push({name:currentName, group:currentGroup, ratings:{...ratings}, total, ts:Date.now()});
+    localStorage.setItem('sc250_eval', JSON.stringify(records));
+  }catch(e){}
+  showScreen('s3');
+}
+
+function showTeacherPrompt(){showScreen('s4');}
+
+function checkPwd(){
+  if(document.getElementById('pwd').value==='SC250'){
+    document.getElementById('pwd-err').classList.add('hidden');
+    buildTeacherView();
+    showScreen('s5');
+  } else {
+    document.getElementById('pwd-err').classList.remove('hidden');
+  }
+}
+
+function buildTeacherView(){
+  let records=[];
+  try{records=JSON.parse(localStorage.getItem('sc250_eval')||'[]');}catch(e){}
+  if(!records.length){
+    document.getElementById('teacher-stats').innerHTML='<p class="muted">No hay evaluaciones guardadas aún.</p>';
+    document.getElementById('teacher-table').innerHTML='';
+    return;
+  }
+  const avg = records.reduce((a,r)=>a+r.total,0)/records.length;
+  // group averages
+  const groups={};
+  records.forEach(r=>{
+    if(!groups[r.group])groups[r.group]=[];
+    groups[r.group].push(r.total);
+  });
+  let groupHTML='<b>Promedio por grupo:</b><br>';
+  Object.keys(groups).sort().forEach(g=>{
+    const gavg=(groups[g].reduce((a,b)=>a+b,0)/groups[g].length).toFixed(1);
+    groupHTML+=`Grupo ${g}: ${gavg} pts (${groups[g].length} eval.)<br>`;
+  });
+  document.getElementById('teacher-stats').innerHTML=`
+    <div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:12px;">
+      <div><div style="font-size:2rem;font-weight:700;font-family:'Fraunces',serif">${records.length}</div><div class="muted">Evaluaciones</div></div>
+      <div><div style="font-size:2rem;font-weight:700;font-family:'Fraunces',serif">${avg.toFixed(1)}</div><div class="muted">Promedio</div></div>
+    </div>${groupHTML}`;
+  let rows=records.map(r=>`<tr><td>${r.name}</td><td>${r.group}</td><td>${r.total}</td><td>${new Date(r.ts).toLocaleTimeString('es-CR')}</td></tr>`).join('');
+  document.getElementById('teacher-table').innerHTML=`
+    <table class="tbl" style="margin-top:16px;">
+      <thead><tr><th>Nombre</th><th>Grupo</th><th>Puntaje</th><th>Hora</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function exportCSV(){
+  let records=[];
+  try{records=JSON.parse(localStorage.getItem('sc250_eval')||'[]');}catch(e){}
+  if(!records.length){alert('No hay datos.');return;}
+  const hdr='Nombre,Grupo,Contenido,Estructura,Dominio,Contexto,Reflexion,Total,Hora\n';
+  const rows=records.map(r=>`"${r.name}",${r.group},${r.ratings.contenido||''},${r.ratings.estructura||''},${r.ratings.dominio||''},${r.ratings.contexto||''},${r.ratings.reflexion||''},${r.total},"${new Date(r.ts).toLocaleString('es-CR')}"`).join('\n');
+  const blob=new Blob([hdr+rows],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='evaluaciones_sc250.csv';a.click();
+}
+
+function resetEval(){
+  CRITERIA.forEach(c=>{ ratings[c.key]=undefined; });
+  document.querySelectorAll('.star-btn').forEach(b=>b.classList.remove('sel'));
+  CRITERIA.forEach(c=>{ document.getElementById('lbl-'+c.key).textContent='Selecciona un nivel'; });
+  document.getElementById('nom').value='';
+  document.getElementById('grp').value='';
+  showScreen('s1');
+}
+
+buildStars();
+</script>
+</body>
+</html>

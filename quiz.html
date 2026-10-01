@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz · SC-250 · Semana 4</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,300&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@0,400;0,600&display=swap">
+<style>
+:root{--bg:#F7F6F2;--surface:#FFFFFF;--text:#111118;--sub:#4B4A5E;--muted:#8F8DA4;--rule:#E2E0DA;--accent:#1A46CC;}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F0E17;--surface:#181724;--text:#ECEAF6;--sub:#9896B2;--muted:#5C5A78;--rule:#22203A;--accent:#5B8DF6;}}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+header{display:flex;align-items:center;gap:12px;padding:12px 24px;border-bottom:1px solid var(--rule);background:var(--surface);}
+header a{color:var(--muted);text-decoration:none;font-size:13px;}header a:hover{color:var(--accent);}
+header span{color:var(--muted);font-size:13px;}
+.page{max-width:680px;margin:0 auto;padding:32px 20px 60px;}
+h1{font-family:'Fraunces',serif;font-size:2rem;font-weight:700;margin-bottom:6px;}
+.subtitle{color:var(--sub);font-size:15px;margin-bottom:28px;}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:24px;margin-bottom:18px;}
+label{display:block;font-size:14px;font-weight:600;margin-bottom:8px;}
+input[type=text],input[type=password]{width:100%;padding:10px 14px;border:1.5px solid var(--rule);border-radius:7px;font-size:15px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);outline:none;}
+input:focus{border-color:var(--accent);}
+.btn{display:inline-block;padding:12px 28px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%;margin-top:4px;}
+.btn:hover{opacity:.88;}.btn.outline{background:none;border:2px solid var(--accent);color:var(--accent);}
+.hidden{display:none!important;}
+.progress-bar{height:6px;background:var(--rule);border-radius:3px;margin-bottom:20px;overflow:hidden;}
+.progress-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .3s;}
+.q-num{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);margin-bottom:8px;}
+.q-topic{display:inline-block;background:var(--bg);border:1px solid var(--rule);border-radius:20px;font-size:11px;padding:2px 10px;color:var(--muted);margin-bottom:14px;}
+.q-text{font-size:17px;font-weight:600;line-height:1.5;margin-bottom:20px;}
+.opt-btn{display:block;width:100%;padding:12px 16px;margin-bottom:10px;border:2px solid var(--rule);border-radius:8px;background:var(--surface);color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer;text-align:left;transition:border-color .15s,background .15s;}
+.opt-btn:hover{border-color:var(--accent);}
+.opt-btn.correct{border-color:#059669;background:#D1FAE5;color:#065F46;}
+.opt-btn.wrong{border-color:#DC2626;background:#FEE2E2;color:#991B1B;}
+.opt-btn:disabled{cursor:default;}
+.feedback{padding:12px 16px;border-radius:8px;font-size:14px;font-weight:600;margin-top:4px;margin-bottom:16px;}
+.feedback.ok{background:#D1FAE5;color:#065F46;}.feedback.err{background:#FEE2E2;color:#991B1B;}
+.score-ring{display:flex;align-items:center;justify-content:center;flex-direction:column;width:130px;height:130px;border-radius:50%;border:5px solid var(--accent);margin:0 auto 20px;}
+.score-big{font-size:2.6rem;font-weight:700;font-family:'Fraunces',serif;line-height:1;}
+.score-of{font-size:12px;color:var(--muted);}
+.tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;}
+.tag.a{background:#D1FAE5;color:#065F46;}.tag.b{background:#DBEAFE;color:#1E40AF;}
+.tag.c{background:#FEF3C7;color:#92400E;}.tag.d{background:#FFE4E6;color:#9F1239;}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.tbl th{background:var(--accent);color:#fff;padding:8px 10px;text-align:left;}
+.tbl td{padding:7px 10px;border-bottom:1px solid var(--rule);}
+.tbl tr:nth-child(even) td{background:var(--bg);}
+.muted{color:var(--muted);font-size:13px;}
+.alert{padding:12px 16px;border-radius:8px;background:#FEF3C7;color:#92400E;font-size:14px;margin-bottom:16px;}
+.export-btn{padding:8px 18px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:12px;}
+.correct-icon::before{content:'✓ ';}
+.wrong-icon::before{content:'✗ ';}
+</style>
+</head>
+<body>
+<header>
+  <a href="index.html">← SC-250</a>
+  <span>/</span>
+  <span>Quiz Investigación · Semana 4</span>
+</header>
+
+<!-- SCREEN 1: START -->
+<div class="page" id="s1">
+  <h1>Quiz<br><em style="font-style:italic;color:var(--accent)">Actividad Investigativa</em></h1>
+  <p class="subtitle">20 preguntas sobre los 10 temas de investigación. Responde una por una y ve tu resultado al final.</p>
+  <div class="card">
+    <label for="nom">Tu nombre completo</label>
+    <input type="text" id="nom" placeholder="Ej. Pérez Solano María" autocomplete="off">
+    <div style="margin-top:16px;">
+      <label for="grp">Número de grupo</label>
+      <input type="text" id="grp" placeholder="Ej. 3" style="max-width:120px;">
+    </div>
+  </div>
+  <button class="btn" onclick="startQuiz()">Comenzar Quiz →</button>
+</div>
+
+<!-- SCREEN 2: QUESTION -->
+<div class="page hidden" id="s2">
+  <div class="progress-bar"><div class="progress-fill" id="pbar"></div></div>
+  <p class="q-num" id="q-num"></p>
+  <p class="q-topic" id="q-topic"></p>
+  <p class="q-text" id="q-text"></p>
+  <div id="opts"></div>
+  <div class="feedback hidden" id="feedback"></div>
+  <button class="btn hidden" id="next-btn" onclick="nextQ()">Siguiente →</button>
+</div>
+
+<!-- SCREEN 3: RESULT -->
+<div class="page hidden" id="s3">
+  <h1>Tu Resultado</h1>
+  <p class="subtitle" id="res-sub"></p>
+  <div class="card" style="text-align:center;">
+    <div class="score-ring">
+      <span class="score-big" id="score-pts"></span>
+      <span class="score-of">/ 100</span>
+    </div>
+    <div id="grade-tag" style="margin-bottom:16px;"></div>
+    <div id="correct-count" style="font-size:14px;color:var(--sub);margin-bottom:12px;"></div>
+    <table class="tbl" style="margin-top:4px;">
+      <thead><tr><th>#</th><th>Pregunta</th><th>Tu respuesta</th><th></th></tr></thead>
+      <tbody id="result-rows"></tbody>
+    </table>
+  </div>
+  <div style="display:flex;gap:10px;margin-top:4px;">
+    <button class="btn outline" onclick="resetQuiz()" style="width:50%;">← Reintentar</button>
+    <button class="btn" onclick="showTeacherPrompt()" style="width:50%;">Vista del profesor</button>
+  </div>
+</div>
+
+<!-- SCREEN 4: TEACHER PASSCODE -->
+<div class="page hidden" id="s4">
+  <h1>Vista del Profesor</h1>
+  <div class="card">
+    <label for="pwd">Código de acceso</label>
+    <input type="password" id="pwd" placeholder="••••••" autocomplete="off">
+    <button class="btn" onclick="checkPwd()" style="margin-top:16px;">Entrar</button>
+    <div class="alert hidden" id="pwd-err" style="margin-top:12px;">Código incorrecto.</div>
+  </div>
+  <button class="btn outline" onclick="showScreen('s3')" style="margin-top:0;">← Volver</button>
+</div>
+
+<!-- SCREEN 5: TEACHER SUMMARY -->
+<div class="page hidden" id="s5">
+  <h1>Resumen del Profesor</h1>
+  <p class="subtitle">Agregado de respuestas en este dispositivo</p>
+  <div id="teacher-stats" class="card"></div>
+  <div id="teacher-q-stats" class="card" style="margin-top:16px;"></div>
+  <div id="teacher-table" style="margin-top:16px;"></div>
+  <button class="export-btn" onclick="exportCSV()">Exportar CSV</button>
+  <div style="margin-top:16px;"><button class="btn outline" onclick="showScreen('s3')">← Volver</button></div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {topic:'T1 – IA y Paradigmas', text:'¿Cuál es la característica principal de herramientas como GitHub Copilot y Claude al programar?', opts:['Solo funciona con programación imperativa','Reemplaza por completo los paradigmas tradicionales','Multiparadigma adaptado al contexto','Usa únicamente programación funcional'], ans:2},
+  {topic:'T1 – IA y Paradigmas', text:'La IA generativa en programación representa principalmente…', opts:['Un paradigma completamente nuevo e independiente','Herramienta aceleradora dentro de paradigmas existentes','El fin de la programación manual','Solo sirve para generar código Python'], ans:1},
+  {topic:'T2 – Computación Cuántica', text:'¿Cuál es la unidad básica de información en la computación cuántica?', opts:['Qubit','Bit cuántico clásico','Registro cuántico','Superposición binaria'], ans:0},
+  {topic:'T2 – Computación Cuántica', text:'¿Qué lenguaje desarrolló Microsoft específicamente para computación cuántica?', opts:['QuantumPy','QBasic','Q#','QuLang'], ans:2},
+  {topic:'T3 – Programación Funcional', text:'¿Por qué WhatsApp eligió Erlang (funcional) para su infraestructura?', opts:['Por su sintaxis sencilla','Por compatibilidad con Java','Inmutabilidad y tolerancia a fallos','Por su popularidad en startups'], ans:2},
+  {topic:'T3 – Programación Funcional', text:'¿Qué propiedad del paradigma funcional favorece la concurrencia segura?', opts:['Herencia múltiple','Estado compartido mutable','Inmutabilidad y ausencia de efectos secundarios','Gestión manual de memoria'], ans:2},
+  {topic:'T4 – Paradigma Declarativo', text:'¿Por qué Terraform aplica el paradigma declarativo en infraestructura?', opts:['Define el estado deseado, no los pasos para llegar','Genera código imperativo automáticamente','Solo funciona en servidores locales','Requiere conocer el proveedor de nube'], ans:0},
+  {topic:'T4 – Paradigma Declarativo', text:'¿Cuál de estas herramientas es declarativa para orquestación de contenedores?', opts:['Docker Run','Ansible Playbook','Kubernetes','Terraform solo'], ans:2},
+  {topic:'T5 – Programación Reactiva', text:'En programación reactiva, la ejecución se desencadena por…', opts:['Llamadas de función síncronas','Instrucciones secuenciales del programador','Ciclos de reloj del procesador','Eventos y flujos de datos asíncronos'], ans:3},
+  {topic:'T5 – Programación Reactiva', text:'¿Qué framework popularizó el paradigma reactivo en frontend mediante componentes?', opts:['Angular con NgRx','jQuery con promesas','React con componentes funcionales y flujo unidireccional','Bootstrap con eventos'], ans:2},
+  {topic:'T6 – Smart Contracts', text:'Solidity, lenguaje de contratos inteligentes, combina paradigmas de…', opts:['Solo programación funcional pura','OOP con restricciones de programación por contratos','Programación lógica y declarativa','Solo scripting secuencial'], ans:1},
+  {topic:'T6 – Smart Contracts', text:'¿Cuál es la diferencia clave de los contratos inteligentes frente al software tradicional?', opts:['Se pueden actualizar constantemente','Se ejecutan solo en servidores privados','Son inmutables una vez desplegados en blockchain','Solo funcionan con criptomonedas'], ans:2},
+  {topic:'T7 – Lenguajes Multiparadigma', text:'¿Por qué Kotlin es considerado un lenguaje multiparadigma?', opts:['Solo soporta OOP clásica','Combina orientación a objetos con funcional','Usa solo programación reactiva','Fue diseñado para reemplazar Java completamente'], ans:1},
+  {topic:'T7 – Lenguajes Multiparadigma', text:'¿Cómo combina Rust paradigmas para resolver el problema de seguridad de memoria?', opts:['Usando garbage collector automático','Combinando OOP con funcional para garantizar seguridad sin garbage collector','Solo con programación imperativa estricta','Mediante máquina virtual como Java'], ans:1},
+  {topic:'T8 – Sistemas Multi-Agente', text:'¿Qué característica distingue a un agente autónomo en sistemas multi-agente?', opts:['Ejecuta solo instrucciones predefinidas','Requiere supervisión humana constante','Solo procesa datos en lote','Percibe el entorno y toma decisiones de forma independiente'], ans:3},
+  {topic:'T8 – Sistemas Multi-Agente', text:'El paradigma de programación multi-agente se define por…', opts:['Múltiples agentes que colaboran y se comunican','Un único agente con muchos hilos','Solo agentes reactivos sin comunicación','Programación paralela tradicional'], ans:0},
+  {topic:'T9 – Programación Lógica', text:'En Prolog, ¿cómo se define el comportamiento de un programa?', opts:['Con instrucciones imperativas paso a paso','Con clases y objetos','Mediante hechos y reglas; el motor de inferencia deduce las soluciones','Con flujos de datos reactivos'], ans:2},
+  {topic:'T9 – Programación Lógica', text:'¿En qué área moderna está resurgiendo la programación lógica?', opts:['Diseño de videojuegos 3D','Programación de sistemas embebidos','Procesamiento de imágenes en tiempo real','Motores de reglas y razonamiento automático en IA'], ans:3},
+  {topic:'T10 – Edge Computing', text:'¿Dónde procesa los datos el Edge Computing?', opts:['Solo en servidores centrales en la nube','Solo en el dispositivo del usuario final','Cerca de donde se generan: nodos IoT y dispositivos periféricos','En centros de datos de gran escala'], ans:2},
+  {topic:'T10 – Edge Computing', text:'¿Qué paradigma de programación impulsa el Edge Computing para manejar múltiples flujos de datos?', opts:['Solo programación imperativa','Programación orientada a objetos clásica','Paradigma paralelo y concurrente para múltiples flujos simultáneos','Solo programación funcional pura'], ans:3},
+];
+
+let shuffled=[], currentQ=0, userAnswers=[], answered=false;
+let currentName='', currentGroup='';
+
+function shuffle(arr){let a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function showScreen(id){['s1','s2','s3','s4','s5'].forEach(s=>document.getElementById(s).classList.add('hidden'));document.getElementById(id).classList.remove('hidden');}
+
+function startQuiz(){
+  currentName=document.getElementById('nom').value.trim();
+  currentGroup=document.getElementById('grp').value.trim();
+  if(!currentName){alert('Por favor ingresa tu nombre.');return;}
+  shuffled=shuffle(QUESTIONS);
+  currentQ=0;userAnswers=[];
+  showScreen('s2');renderQ();
+}
+
+function renderQ(){
+  const q=shuffled[currentQ];
+  const pct=Math.round((currentQ/shuffled.length)*100);
+  document.getElementById('pbar').style.width=pct+'%';
+  document.getElementById('q-num').textContent=`Pregunta ${currentQ+1} de ${shuffled.length}`;
+  document.getElementById('q-topic').textContent=q.topic;
+  document.getElementById('q-text').textContent=q.text;
+  const optEl=document.getElementById('opts');
+  optEl.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='opt-btn';b.textContent=o;
+    b.onclick=()=>pickAnswer(i,b,q.ans);
+    optEl.appendChild(b);
+  });
+  document.getElementById('feedback').classList.add('hidden');
+  document.getElementById('next-btn').classList.add('hidden');
+  answered=false;
+}
+
+function pickAnswer(idx, btn, correct){
+  if(answered)return;
+  answered=true;
+  userAnswers.push(idx===correct);
+  const opts=document.querySelectorAll('.opt-btn');
+  opts.forEach(b=>b.disabled=true);
+  opts[correct].classList.add('correct');
+  const fb=document.getElementById('feedback');
+  if(idx===correct){
+    fb.className='feedback ok';fb.textContent='✓ ¡Correcto!';
+  } else {
+    btn.classList.add('wrong');
+    fb.className='feedback err';fb.textContent=`✗ Incorrecto. La respuesta correcta es: "${QUESTIONS[0].opts[correct]}"`;
+    // use current question options
+    fb.textContent=`✗ Incorrecto. Respuesta correcta: "${shuffled[currentQ].opts[correct]}"`;
+  }
+  fb.classList.remove('hidden');
+  document.getElementById('next-btn').classList.remove('hidden');
+  if(currentQ===shuffled.length-1)document.getElementById('next-btn').textContent='Ver resultado →';
+}
+
+function nextQ(){
+  currentQ++;
+  if(currentQ>=shuffled.length){showResult();}
+  else{renderQ();}
+}
+
+function showResult(){
+  const correct=userAnswers.filter(Boolean).length;
+  const score=Math.round((correct/shuffled.length)*100);
+  document.getElementById('res-sub').textContent=`${currentName} · Grupo ${currentGroup}`;
+  document.getElementById('score-pts').textContent=score;
+  document.getElementById('correct-count').textContent=`${correct} correctas de ${shuffled.length} preguntas`;
+  const grade=score>=90?{t:'Sobresaliente',cls:'a'}:score>=80?{t:'Avanzado',cls:'b'}:score>=70?{t:'Competente',cls:'c'}:{t:'En desarrollo',cls:'d'};
+  document.getElementById('grade-tag').innerHTML=`<span class="tag ${grade.cls}">${grade.t}</span>`;
+  const tb=document.getElementById('result-rows');
+  tb.innerHTML=shuffled.map((q,i)=>`<tr>
+    <td>${i+1}</td>
+    <td style="font-size:12px;">${q.text.slice(0,60)}…</td>
+    <td style="font-size:12px;">${q.opts[userAnswers[i]?q.ans:(userAnswers[i]===false?-1:q.ans)]|| q.opts[q.ans]}</td>
+    <td>${userAnswers[i]?'<span class="tag a correct-icon">Correcto</span>':'<span class="tag d wrong-icon">Incorrecto</span>'}</td>
+  </tr>`).join('');
+  // fix result rows to show actual selected option
+  // Re-render with actual answers
+  tb.innerHTML='';
+  let ansIdx=0;
+  shuffled.forEach((q,i)=>{
+    const wasCorrect=userAnswers[i];
+    tb.innerHTML+=`<tr>
+      <td>${i+1}</td>
+      <td style="font-size:12px;">${q.text.slice(0,55)}…</td>
+      <td style="font-size:12px;">${q.opts[q.ans]}</td>
+      <td>${wasCorrect?'<span class="tag a">✓</span>':'<span class="tag d">✗</span>'}</td>
+    </tr>`;
+  });
+  // Save
+  try{
+    const records=JSON.parse(localStorage.getItem('sc250_quiz')||'[]');
+    records.push({name:currentName,group:currentGroup,answers:[...userAnswers],correct,total:shuffled.length,score,ts:Date.now()});
+    localStorage.setItem('sc250_quiz',JSON.stringify(records));
+  }catch(e){}
+  showScreen('s3');
+}
+
+function showTeacherPrompt(){showScreen('s4');}
+
+function checkPwd(){
+  if(document.getElementById('pwd').value==='SC250'){
+    document.getElementById('pwd-err').classList.add('hidden');
+    buildTeacherView();showScreen('s5');
+  } else {document.getElementById('pwd-err').classList.remove('hidden');}
+}
+
+function buildTeacherView(){
+  let records=[];
+  try{records=JSON.parse(localStorage.getItem('sc250_quiz')||'[]');}catch(e){}
+  const stats=document.getElementById('teacher-stats');
+  const qstats=document.getElementById('teacher-q-stats');
+  const tbl=document.getElementById('teacher-table');
+  if(!records.length){stats.innerHTML='<p class="muted">No hay resultados guardados aún.</p>';qstats.innerHTML='';tbl.innerHTML='';return;}
+  const avg=records.reduce((a,r)=>a+r.score,0)/records.length;
+  stats.innerHTML=`
+    <div style="display:flex;gap:24px;flex-wrap:wrap;">
+      <div><div style="font-size:2rem;font-weight:700;font-family:'Fraunces',serif">${records.length}</div><div class="muted">Participantes</div></div>
+      <div><div style="font-size:2rem;font-weight:700;font-family:'Fraunces',serif">${avg.toFixed(1)}</div><div class="muted">Puntaje promedio</div></div>
+      <div><div style="font-size:2rem;font-weight:700;font-family:'Fraunces',serif">${Math.max(...records.map(r=>r.score))}</div><div class="muted">Puntaje más alto</div></div>
+    </div>`;
+  // Per-question stats
+  const qcorrect=Array(20).fill(0);
+  records.forEach(r=>{r.answers.forEach((a,i)=>{if(a)qcorrect[i]++;});});
+  let qrows='';
+  QUESTIONS.forEach((q,i)=>{
+    const pct=records.length?Math.round((qcorrect[i]/records.length)*100):0;
+    qrows+=`<tr><td>${i+1}</td><td style="font-size:12px;">${q.topic}</td><td>${q.text.slice(0,50)}…</td><td>${qcorrect[i]}/${records.length}</td><td style="color:${pct>=60?'#059669':'#DC2626'}">${pct}%</td></tr>`;
+  });
+  qstats.innerHTML=`<b style="display:block;margin-bottom:10px;">Respuestas correctas por pregunta</b>
+    <table class="tbl"><thead><tr><th>#</th><th>Tema</th><th>Pregunta</th><th>Correctas</th><th>%</th></tr></thead><tbody>${qrows}</tbody></table>`;
+  let rows=records.map(r=>`<tr><td>${r.name}</td><td>${r.group}</td><td>${r.correct}/${r.total}</td><td>${r.score}%</td><td>${new Date(r.ts).toLocaleTimeString('es-CR')}</td></tr>`).join('');
+  tbl.innerHTML=`<b style="display:block;margin:16px 0 10px;">Todos los resultados</b>
+    <table class="tbl"><thead><tr><th>Nombre</th><th>Grupo</th><th>Correctas</th><th>Puntaje</th><th>Hora</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function exportCSV(){
+  let records=[];try{records=JSON.parse(localStorage.getItem('sc250_quiz')||'[]');}catch(e){}
+  if(!records.length){alert('No hay datos.');return;}
+  const hdr='Nombre,Grupo,Correctas,Total,Puntaje,Hora\n';
+  const rows=records.map(r=>`"${r.name}",${r.group},${r.correct},${r.total},${r.score},"${new Date(r.ts).toLocaleString('es-CR')}"`).join('\n');
+  const blob=new Blob([hdr+rows],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='quiz_sc250.csv';a.click();
+}
+
+function resetQuiz(){currentQ=0;userAnswers=[];shuffled=shuffle(QUESTIONS);document.getElementById('nom').value='';document.getElementById('grp').value='';showScreen('s1');}
+</script>
+</body>
+</html>
