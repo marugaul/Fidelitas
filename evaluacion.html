@@ -77,8 +77,10 @@ input:focus{border-color:var(--accent);}
   <h1>Evaluación<br><em style="font-style:italic;color:var(--accent)">de Presentaciones</em></h1>
   <p class="subtitle">Vas a calificar a cada grupo conforme vayan presentando. Ingresa tu nombre una sola vez y luego selecciona el grupo que terminó de presentar.</p>
   <div class="card">
-    <label for="nom">Tu nombre completo</label>
-    <input type="text" id="nom" placeholder="Ej. Pérez Solano María" autocomplete="off">
+    <label for="nom">Selecciona tu nombre</label>
+    <select id="nom" style="width:100%;padding:10px 14px;border:1.5px solid var(--rule);border-radius:7px;font-size:15px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);outline:none;cursor:pointer;">
+      <option value="">— elige tu nombre —</option>
+    </select>
   </div>
   <button class="btn" onclick="goToDashboard()">Continuar →</button>
 </div>
@@ -216,11 +218,8 @@ function matchesRoster(raterName, rosterEntry){
 }
 
 function rosterStatus(records){
-  const raters = [...new Set(records.map(r=>r.rater))];
-  return ROSTER.map(name => {
-    const matched = raters.find(r => matchesRoster(r, name));
-    return {name, matched: matched || null};
-  });
+  const raters = new Set(records.map(r=>r.rater));
+  return ROSTER.map(name => ({name, matched: raters.has(name) ? name : null}));
 }
 
 let currentName = '';
@@ -388,6 +387,17 @@ function exportCSV(){
   const blob=new Blob([hdr+rows],{type:'text/csv'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='evaluaciones_sc250.csv';a.click();
 }
+
+// Populate name dropdown from roster
+(function(){
+  const sel = document.getElementById('nom');
+  ROSTER.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    sel.appendChild(opt);
+  });
+})();
 
 buildStars();
 </script>
