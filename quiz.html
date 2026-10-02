@@ -3,15 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quiz · SC-250 · Semana 4</title>
+<title>Quiz · SC-250 · Repaso Semanas 1–3</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,300&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@0,400;0,600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-:root{--bg:#F7F6F2;--surface:#FFFFFF;--text:#111118;--sub:#4B4A5E;--muted:#8F8DA4;--rule:#E2E0DA;--accent:#1A46CC;}
+:root{--bg:#F7F6F2;--surface:#FFFFFF;--text:#111118;--sub:#4B4A5E;--muted:#8F8DA4;--rule:#E2E0DA;--accent:#1A46CC;--green:#059669;--red:#DC2626;}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F0E17;--surface:#181724;--text:#ECEAF6;--sub:#9896B2;--muted:#5C5A78;--rule:#22203A;--accent:#5B8DF6;}}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 header{display:flex;align-items:center;gap:12px;padding:12px 24px;border-bottom:1px solid var(--rule);background:var(--surface);}
-header a{color:var(--muted);text-decoration:none;font-size:13px;}header a:hover{color:var(--accent);}
+header a{color:var(--muted);text-decoration:none;font-size:13px;}
+header a:hover{color:var(--accent);}
 header span{color:var(--muted);font-size:13px;}
 .page{max-width:680px;margin:0 auto;padding:32px 20px 60px;}
 h1{font-family:'Fraunces',serif;font-size:2rem;font-weight:700;margin-bottom:6px;}
@@ -21,26 +23,38 @@ label{display:block;font-size:14px;font-weight:600;margin-bottom:8px;}
 input[type=text],input[type=password]{width:100%;padding:10px 14px;border:1.5px solid var(--rule);border-radius:7px;font-size:15px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);outline:none;}
 input:focus{border-color:var(--accent);}
 .btn{display:inline-block;padding:12px 28px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%;margin-top:4px;}
-.btn:hover{opacity:.88;}.btn.outline{background:none;border:2px solid var(--accent);color:var(--accent);}
+.btn:hover{opacity:.88;}
+.btn.outline{background:none;border:2px solid var(--accent);color:var(--accent);}
+.btn.green-btn{background:#059669;}
 .hidden{display:none!important;}
+/* Progress */
 .progress-bar{height:6px;background:var(--rule);border-radius:3px;margin-bottom:20px;overflow:hidden;}
 .progress-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .3s;}
-.q-num{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);margin-bottom:8px;}
-.q-topic{display:inline-block;background:var(--bg);border:1px solid var(--rule);border-radius:20px;font-size:11px;padding:2px 10px;color:var(--muted);margin-bottom:14px;}
+.q-num{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);margin-bottom:14px;}
 .q-text{font-size:17px;font-weight:600;line-height:1.5;margin-bottom:20px;}
+/* Live score bar */
+.live-score{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:10px 16px;margin-bottom:18px;}
+.live-score .ls-label{font-size:13px;color:var(--muted);}
+.live-score .ls-nums{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;color:var(--accent);}
+.live-score .ls-bar{flex:1;height:6px;background:var(--rule);border-radius:3px;overflow:hidden;}
+.live-score .ls-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .4s;}
+/* Options */
 .opt-btn{display:block;width:100%;padding:12px 16px;margin-bottom:10px;border:2px solid var(--rule);border-radius:8px;background:var(--surface);color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer;text-align:left;transition:border-color .15s,background .15s;}
 .opt-btn:hover{border-color:var(--accent);}
 .opt-btn.correct{border-color:#059669;background:#D1FAE5;color:#065F46;}
 .opt-btn.wrong{border-color:#DC2626;background:#FEE2E2;color:#991B1B;}
 .opt-btn:disabled{cursor:default;}
-.feedback{padding:12px 16px;border-radius:8px;font-size:14px;font-weight:600;margin-top:4px;margin-bottom:16px;}
-.feedback.ok{background:#D1FAE5;color:#065F46;}.feedback.err{background:#FEE2E2;color:#991B1B;}
+.feedback{padding:12px 16px;border-radius:8px;font-size:14px;font-weight:600;margin-top:4px;margin-bottom:12px;}
+.feedback.ok{background:#D1FAE5;color:#065F46;}
+.feedback.err{background:#FEE2E2;color:#991B1B;}
+/* Result */
 .score-ring{display:flex;align-items:center;justify-content:center;flex-direction:column;width:130px;height:130px;border-radius:50%;border:5px solid var(--accent);margin:0 auto 20px;}
 .score-big{font-size:2.6rem;font-weight:700;font-family:'Fraunces',serif;line-height:1;}
 .score-of{font-size:12px;color:var(--muted);}
 .tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;}
 .tag.a{background:#D1FAE5;color:#065F46;}.tag.b{background:#DBEAFE;color:#1E40AF;}
 .tag.c{background:#FEF3C7;color:#92400E;}.tag.d{background:#FFE4E6;color:#9F1239;}
+/* Tables */
 .tbl{width:100%;border-collapse:collapse;font-size:13px;}
 .tbl th{background:var(--accent);color:#fff;padding:8px 10px;text-align:left;}
 .tbl td{padding:7px 10px;border-bottom:1px solid var(--rule);}
@@ -48,66 +62,72 @@ input:focus{border-color:var(--accent);}
 .muted{color:var(--muted);font-size:13px;}
 .alert{padding:12px 16px;border-radius:8px;background:#FEF3C7;color:#92400E;font-size:14px;margin-bottom:16px;}
 .export-btn{padding:8px 18px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:12px;}
-.correct-icon::before{content:'✓ ';}
-.wrong-icon::before{content:'✗ ';}
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:16px;margin-bottom:4px;}
+.stat-box{text-align:center;}
+.stat-num{font-size:2rem;font-weight:700;font-family:'Fraunces',serif;}
+.stat-lbl{font-size:12px;color:var(--muted);margin-top:2px;}
+/* Result row icons */
+.r-ok{color:#059669;font-weight:700;}
+.r-err{color:#DC2626;font-weight:700;}
 </style>
 </head>
 <body>
 <header>
   <a href="index.html">← SC-250</a>
   <span>/</span>
-  <span>Quiz Investigación · Semana 4</span>
+  <span>Quiz Repaso · Semanas 1–3</span>
+  <span style="margin-left:auto;"><a href="#" onclick="showPublicResults();return false;" style="font-size:12px;color:var(--accent);">Ver resultados del grupo</a></span>
 </header>
 
-<!-- SCREEN 1: START -->
+<!-- S1: START -->
 <div class="page" id="s1">
-  <h1>Quiz<br><em style="font-style:italic;color:var(--accent)">Actividad Investigativa</em></h1>
-  <p class="subtitle">20 preguntas sobre los 10 temas de investigación. Responde una por una y ve tu resultado al final.</p>
+  <h1>Quiz<br><em style="font-style:italic;color:var(--accent)">Repaso Semanas 1–3</em></h1>
+  <p class="subtitle">10 preguntas de selección única. Verás si acertaste después de cada respuesta y tu puntaje en vivo.</p>
   <div class="card">
     <label for="nom">Tu nombre completo</label>
     <input type="text" id="nom" placeholder="Ej. Pérez Solano María" autocomplete="off">
-    <div style="margin-top:16px;">
-      <label for="grp">Número de grupo</label>
-      <input type="text" id="grp" placeholder="Ej. 3" style="max-width:120px;">
-    </div>
   </div>
-  <button class="btn" onclick="startQuiz()">Comenzar Quiz →</button>
+  <button class="btn" onclick="startQuiz()">Comenzar →</button>
+  <p style="text-align:center;margin-top:16px;"><a href="#" onclick="showPublicResults();return false;" style="color:var(--accent);font-size:14px;">Ver resultados del grupo (sin nombres)</a></p>
 </div>
 
-<!-- SCREEN 2: QUESTION -->
+<!-- S2: QUESTION -->
 <div class="page hidden" id="s2">
   <div class="progress-bar"><div class="progress-fill" id="pbar"></div></div>
+  <div class="live-score" id="livescore">
+    <span class="ls-label">Correctas:</span>
+    <span class="ls-nums" id="ls-nums">0/0</span>
+    <div class="ls-bar"><div class="ls-fill" id="ls-fill" style="width:0%"></div></div>
+    <span class="ls-nums" id="ls-pct">—</span>
+  </div>
   <p class="q-num" id="q-num"></p>
-  <p class="q-topic" id="q-topic"></p>
   <p class="q-text" id="q-text"></p>
   <div id="opts"></div>
   <div class="feedback hidden" id="feedback"></div>
   <button class="btn hidden" id="next-btn" onclick="nextQ()">Siguiente →</button>
 </div>
 
-<!-- SCREEN 3: RESULT -->
+<!-- S3: RESULT -->
 <div class="page hidden" id="s3">
   <h1>Tu Resultado</h1>
   <p class="subtitle" id="res-sub"></p>
   <div class="card" style="text-align:center;">
-    <div class="score-ring">
-      <span class="score-big" id="score-pts"></span>
-      <span class="score-of">/ 100</span>
-    </div>
+    <div class="score-ring"><span class="score-big" id="score-pts"></span><span class="score-of">/ 10</span></div>
     <div id="grade-tag" style="margin-bottom:16px;"></div>
-    <div id="correct-count" style="font-size:14px;color:var(--sub);margin-bottom:12px;"></div>
-    <table class="tbl" style="margin-top:4px;">
-      <thead><tr><th>#</th><th>Pregunta</th><th>Tu respuesta</th><th></th></tr></thead>
+    <table class="tbl">
+      <thead><tr><th>#</th><th>Pregunta</th><th></th></tr></thead>
       <tbody id="result-rows"></tbody>
     </table>
   </div>
-  <div style="display:flex;gap:10px;margin-top:4px;">
-    <button class="btn outline" onclick="resetQuiz()" style="width:50%;">← Reintentar</button>
-    <button class="btn" onclick="showTeacherPrompt()" style="width:50%;">Vista del profesor</button>
+  <div style="display:flex;gap:10px;margin-top:4px;flex-wrap:wrap;">
+    <button class="btn outline" onclick="resetQuiz()" style="flex:1;min-width:140px;">← Reintentar</button>
+    <button class="btn green-btn" onclick="showPublicResults()" style="flex:1;min-width:140px;">Resultados del grupo</button>
+    <button class="btn" onclick="showScreen('s4')" style="flex:1;min-width:140px;">Vista del profesor</button>
   </div>
 </div>
 
-<!-- SCREEN 4: TEACHER PASSCODE -->
+<!-- S4: PASSCODE -->
 <div class="page hidden" id="s4">
   <h1>Vista del Profesor</h1>
   <div class="card">
@@ -119,63 +139,74 @@ input:focus{border-color:var(--accent);}
   <button class="btn outline" onclick="showScreen('s3')" style="margin-top:0;">← Volver</button>
 </div>
 
-<!-- SCREEN 5: TEACHER SUMMARY -->
+<!-- S5: TEACHER DETAIL (with names) -->
 <div class="page hidden" id="s5">
-  <h1>Resumen del Profesor</h1>
-  <p class="subtitle">Agregado de respuestas en este dispositivo</p>
-  <div id="teacher-stats" class="card"></div>
-  <div id="teacher-q-stats" class="card" style="margin-top:16px;"></div>
-  <div id="teacher-table" style="margin-top:16px;"></div>
+  <h1>Vista del Profesor</h1>
+  <p class="subtitle">Todos los datos — guardados en este dispositivo</p>
+  <div id="t-stats" class="card"></div>
+  <div id="t-table" style="margin-top:16px;"></div>
   <button class="export-btn" onclick="exportCSV()">Exportar CSV</button>
   <div style="margin-top:16px;"><button class="btn outline" onclick="showScreen('s3')">← Volver</button></div>
 </div>
 
+<!-- S6: PUBLIC RESULTS (no names) -->
+<div class="page hidden" id="s6">
+  <h1>Resultados del Grupo</h1>
+  <p class="subtitle">Resumen anónimo de todos los que han respondido en este dispositivo</p>
+  <div id="pub-stats" class="card"></div>
+  <div class="card" style="margin-top:0;" id="pub-chart-card">
+    <b style="display:block;margin-bottom:14px;">% de aciertos por pregunta</b>
+    <canvas id="pub-chart" height="220"></canvas>
+  </div>
+  <div class="card" id="pub-dist-card" style="margin-top:0;">
+    <b style="display:block;margin-bottom:14px;">Distribución de puntajes</b>
+    <canvas id="pub-dist" height="180"></canvas>
+  </div>
+  <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+    <button class="btn outline" onclick="showScreen('s1')" style="flex:1;">← Volver al inicio</button>
+    <button class="btn" onclick="showScreen('s4')" style="flex:1;">Vista del profesor (con nombres)</button>
+  </div>
+</div>
+
 <script>
 const QUESTIONS = [
-  {topic:'T1 – IA y Paradigmas', text:'¿Cuál es la característica principal de herramientas como GitHub Copilot y Claude al programar?', opts:['Solo funciona con programación imperativa','Reemplaza por completo los paradigmas tradicionales','Multiparadigma adaptado al contexto','Usa únicamente programación funcional'], ans:2},
-  {topic:'T1 – IA y Paradigmas', text:'La IA generativa en programación representa principalmente…', opts:['Un paradigma completamente nuevo e independiente','Herramienta aceleradora dentro de paradigmas existentes','El fin de la programación manual','Solo sirve para generar código Python'], ans:1},
-  {topic:'T2 – Computación Cuántica', text:'¿Cuál es la unidad básica de información en la computación cuántica?', opts:['Qubit','Bit cuántico clásico','Registro cuántico','Superposición binaria'], ans:0},
-  {topic:'T2 – Computación Cuántica', text:'¿Qué lenguaje desarrolló Microsoft específicamente para computación cuántica?', opts:['QuantumPy','QBasic','Q#','QuLang'], ans:2},
-  {topic:'T3 – Programación Funcional', text:'¿Por qué WhatsApp eligió Erlang (funcional) para su infraestructura?', opts:['Por su sintaxis sencilla','Por compatibilidad con Java','Inmutabilidad y tolerancia a fallos','Por su popularidad en startups'], ans:2},
-  {topic:'T3 – Programación Funcional', text:'¿Qué propiedad del paradigma funcional favorece la concurrencia segura?', opts:['Herencia múltiple','Estado compartido mutable','Inmutabilidad y ausencia de efectos secundarios','Gestión manual de memoria'], ans:2},
-  {topic:'T4 – Paradigma Declarativo', text:'¿Por qué Terraform aplica el paradigma declarativo en infraestructura?', opts:['Define el estado deseado, no los pasos para llegar','Genera código imperativo automáticamente','Solo funciona en servidores locales','Requiere conocer el proveedor de nube'], ans:0},
-  {topic:'T4 – Paradigma Declarativo', text:'¿Cuál de estas herramientas es declarativa para orquestación de contenedores?', opts:['Docker Run','Ansible Playbook','Kubernetes','Terraform solo'], ans:2},
-  {topic:'T5 – Programación Reactiva', text:'En programación reactiva, la ejecución se desencadena por…', opts:['Llamadas de función síncronas','Instrucciones secuenciales del programador','Ciclos de reloj del procesador','Eventos y flujos de datos asíncronos'], ans:3},
-  {topic:'T5 – Programación Reactiva', text:'¿Qué framework popularizó el paradigma reactivo en frontend mediante componentes?', opts:['Angular con NgRx','jQuery con promesas','React con componentes funcionales y flujo unidireccional','Bootstrap con eventos'], ans:2},
-  {topic:'T6 – Smart Contracts', text:'Solidity, lenguaje de contratos inteligentes, combina paradigmas de…', opts:['Solo programación funcional pura','OOP con restricciones de programación por contratos','Programación lógica y declarativa','Solo scripting secuencial'], ans:1},
-  {topic:'T6 – Smart Contracts', text:'¿Cuál es la diferencia clave de los contratos inteligentes frente al software tradicional?', opts:['Se pueden actualizar constantemente','Se ejecutan solo en servidores privados','Son inmutables una vez desplegados en blockchain','Solo funcionan con criptomonedas'], ans:2},
-  {topic:'T7 – Lenguajes Multiparadigma', text:'¿Por qué Kotlin es considerado un lenguaje multiparadigma?', opts:['Solo soporta OOP clásica','Combina orientación a objetos con funcional','Usa solo programación reactiva','Fue diseñado para reemplazar Java completamente'], ans:1},
-  {topic:'T7 – Lenguajes Multiparadigma', text:'¿Cómo combina Rust paradigmas para resolver el problema de seguridad de memoria?', opts:['Usando garbage collector automático','Combinando OOP con funcional para garantizar seguridad sin garbage collector','Solo con programación imperativa estricta','Mediante máquina virtual como Java'], ans:1},
-  {topic:'T8 – Sistemas Multi-Agente', text:'¿Qué característica distingue a un agente autónomo en sistemas multi-agente?', opts:['Ejecuta solo instrucciones predefinidas','Requiere supervisión humana constante','Solo procesa datos en lote','Percibe el entorno y toma decisiones de forma independiente'], ans:3},
-  {topic:'T8 – Sistemas Multi-Agente', text:'El paradigma de programación multi-agente se define por…', opts:['Múltiples agentes que colaboran y se comunican','Un único agente con muchos hilos','Solo agentes reactivos sin comunicación','Programación paralela tradicional'], ans:0},
-  {topic:'T9 – Programación Lógica', text:'En Prolog, ¿cómo se define el comportamiento de un programa?', opts:['Con instrucciones imperativas paso a paso','Con clases y objetos','Mediante hechos y reglas; el motor de inferencia deduce las soluciones','Con flujos de datos reactivos'], ans:2},
-  {topic:'T9 – Programación Lógica', text:'¿En qué área moderna está resurgiendo la programación lógica?', opts:['Diseño de videojuegos 3D','Programación de sistemas embebidos','Procesamiento de imágenes en tiempo real','Motores de reglas y razonamiento automático en IA'], ans:3},
-  {topic:'T10 – Edge Computing', text:'¿Dónde procesa los datos el Edge Computing?', opts:['Solo en servidores centrales en la nube','Solo en el dispositivo del usuario final','Cerca de donde se generan: nodos IoT y dispositivos periféricos','En centros de datos de gran escala'], ans:2},
-  {topic:'T10 – Edge Computing', text:'¿Qué paradigma de programación impulsa el Edge Computing para manejar múltiples flujos de datos?', opts:['Solo programación imperativa','Programación orientada a objetos clásica','Paradigma paralelo y concurrente para múltiples flujos simultáneos','Solo programación funcional pura'], ans:3},
+  {text:'1. Un paradigma de programación se define principalmente como:',opts:['a. Un lenguaje de programación específico, como Java o Python.','b. Un modelo o patrón de pensamiento que orienta cómo se estructuran y resuelven los problemas al programar.','c. Un tipo de computadora usada para programar.','d. Una herramienta de inteligencia artificial para escribir código.'],ans:1},
+  {text:'2. ¿Cuál de los siguientes es un ejemplo de paradigma de Programación Orientada a Objetos?',opts:['a. Prolog','b. Haskell','c. Java','d. SQL'],ans:2},
+  {text:'3. La Máquina de Turing es importante porque:',opts:['a. Fue la primera computadora física construida en el mundo.','b. Es un modelo matemático capaz de simular la lógica de cualquier algoritmo de computador.','c. Es un lenguaje de programación usado en inteligencia artificial.','d. Es el nombre de un paradigma de programación concurrente.'],ans:1},
+  {text:'4. ¿Cuál es la diferencia principal entre sintaxis y semántica de un lenguaje de programación?',opts:['a. La sintaxis es la velocidad de ejecución; la semántica es el tamaño del código.','b. La sintaxis es si el código está bien escrito; la semántica es el significado real de lo que hace el código.','c. No hay diferencia, son el mismo concepto.','d. La sintaxis solo aplica a lenguajes orientados a objetos.'],ans:1},
+  {text:'5. Un error de sintaxis se diferencia de un error de semántica en que:',opts:['a. El error de sintaxis SÍ lo detecta el compilador; el error de semántica normalmente NO lo detecta el compilador.','b. El error de semántica siempre detiene la ejecución del programa de inmediato.','c. Ambos son detectados siempre de la misma forma por el compilador.','d. El error de sintaxis solo ocurre en lenguajes orientados a objetos.'],ans:0},
+  {text:'6. En el modelo de Cloud Computing, SaaS, PaaS e IaaS corresponden respectivamente a:',opts:['a. Seguridad, Protección y Infraestructura como Servicio.','b. Software, Plataforma e Infraestructura como Servicio.','c. Sistema, Programa e Internet como Servicio.','d. Servidor, Proceso e Información como Servicio.'],ans:1},
+  {text:'7. ¿Cuál es la diferencia principal entre Cloud Computing y Grid Computing?',opts:['a. No hay ninguna diferencia, son el mismo concepto.','b. En la nube un solo proveedor controla toda la infraestructura; en el grid, varias organizaciones comparten voluntariamente sus propios recursos.','c. El grid solo funciona en computadoras personales, nunca en servidores.','d. La nube no necesita conexión a Internet, el grid sí.'],ans:1},
+  {text:'8. La programación paralela se basa en el principio de que:',opts:['a. Todo el código debe ejecutarse en una sola instrucción a la vez.','b. Los problemas grandes se pueden dividir en problemas más pequeños que se resuelven simultáneamente.','c. Solo puede usarse en lenguajes orientados a objetos.','d. Es exactamente lo mismo que la programación secuencial.'],ans:1},
+  {text:'9. ¿Cuál de las siguientes NO es una ventaja típica del Cloud Computing vista en clase?',opts:['a. Elasticidad (se adapta a picos de demanda).','b. Acceso móvil desde cualquier lugar.','c. Independencia total de la conexión a Internet.','d. Ahorro de costos de infraestructura.'],ans:2},
+  {text:'10. Según lo visto en clase, la diferencia entre paralelismo de datos y paralelismo de tareas es:',opts:['a. Son exactamente lo mismo, solo cambia el nombre.','b. El de datos aplica la MISMA operación a datos distintos repartidos entre núcleos; el de tareas asigna operaciones DISTINTAS a cada procesador.','c. El paralelismo de tareas solo existe en teoría, nunca se usa en la práctica.','d. El paralelismo de datos solo aplica a bases de datos SQL.'],ans:1},
 ];
 
-let shuffled=[], currentQ=0, userAnswers=[], answered=false;
-let currentName='', currentGroup='';
+let currentQ=0, userAnswers=[], answered=false, currentName='';
+let chartQ=null, chartDist=null;
 
-function shuffle(arr){let a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-
-function showScreen(id){['s1','s2','s3','s4','s5'].forEach(s=>document.getElementById(s).classList.add('hidden'));document.getElementById(id).classList.remove('hidden');}
+function showScreen(id){['s1','s2','s3','s4','s5','s6'].forEach(s=>document.getElementById(s).classList.add('hidden'));document.getElementById(id).classList.remove('hidden');}
 
 function startQuiz(){
   currentName=document.getElementById('nom').value.trim();
-  currentGroup=document.getElementById('grp').value.trim();
   if(!currentName){alert('Por favor ingresa tu nombre.');return;}
-  shuffled=shuffle(QUESTIONS);
   currentQ=0;userAnswers=[];
   showScreen('s2');renderQ();
 }
 
+function updateLiveScore(){
+  const done=userAnswers.length;
+  const ok=userAnswers.filter(Boolean).length;
+  document.getElementById('ls-nums').textContent=ok+'/'+done;
+  const pct=done?Math.round((ok/done)*100):0;
+  document.getElementById('ls-pct').textContent=done?(pct+'%'):'—';
+  document.getElementById('ls-fill').style.width=pct+'%';
+}
+
 function renderQ(){
-  const q=shuffled[currentQ];
-  const pct=Math.round((currentQ/shuffled.length)*100);
-  document.getElementById('pbar').style.width=pct+'%';
-  document.getElementById('q-num').textContent=`Pregunta ${currentQ+1} de ${shuffled.length}`;
-  document.getElementById('q-topic').textContent=q.topic;
+  const q=QUESTIONS[currentQ];
+  document.getElementById('pbar').style.width=Math.round((currentQ/QUESTIONS.length)*100)+'%';
+  document.getElementById('q-num').textContent=`Pregunta ${currentQ+1} de ${QUESTIONS.length}`;
   document.getElementById('q-text').textContent=q.text;
   const optEl=document.getElementById('opts');
   optEl.innerHTML='';
@@ -188,120 +219,142 @@ function renderQ(){
   document.getElementById('feedback').classList.add('hidden');
   document.getElementById('next-btn').classList.add('hidden');
   answered=false;
+  updateLiveScore();
 }
 
-function pickAnswer(idx, btn, correct){
+function pickAnswer(idx,btn,correct){
   if(answered)return;
   answered=true;
-  userAnswers.push(idx===correct);
-  const opts=document.querySelectorAll('.opt-btn');
-  opts.forEach(b=>b.disabled=true);
-  opts[correct].classList.add('correct');
+  const isOk=idx===correct;
+  userAnswers.push(isOk);
+  document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
+  document.querySelectorAll('.opt-btn')[correct].classList.add('correct');
+  if(!isOk)btn.classList.add('wrong');
   const fb=document.getElementById('feedback');
-  if(idx===correct){
-    fb.className='feedback ok';fb.textContent='✓ ¡Correcto!';
-  } else {
-    btn.classList.add('wrong');
-    fb.className='feedback err';fb.textContent=`✗ Incorrecto. La respuesta correcta es: "${QUESTIONS[0].opts[correct]}"`;
-    // use current question options
-    fb.textContent=`✗ Incorrecto. Respuesta correcta: "${shuffled[currentQ].opts[correct]}"`;
-  }
+  fb.className='feedback '+(isOk?'ok':'err');
+  fb.textContent=isOk?'✓ ¡Correcto!':`✗ Incorrecto. Respuesta correcta: "${QUESTIONS[currentQ].opts[correct]}"`;
   fb.classList.remove('hidden');
-  document.getElementById('next-btn').classList.remove('hidden');
-  if(currentQ===shuffled.length-1)document.getElementById('next-btn').textContent='Ver resultado →';
+  updateLiveScore();
+  const nb=document.getElementById('next-btn');
+  nb.classList.remove('hidden');
+  nb.textContent=currentQ===QUESTIONS.length-1?'Ver resultado →':'Siguiente →';
 }
 
 function nextQ(){
   currentQ++;
-  if(currentQ>=shuffled.length){showResult();}
-  else{renderQ();}
+  if(currentQ>=QUESTIONS.length)showResult();
+  else renderQ();
 }
 
 function showResult(){
   const correct=userAnswers.filter(Boolean).length;
-  const score=Math.round((correct/shuffled.length)*100);
-  document.getElementById('res-sub').textContent=`${currentName} · Grupo ${currentGroup}`;
-  document.getElementById('score-pts').textContent=score;
-  document.getElementById('correct-count').textContent=`${correct} correctas de ${shuffled.length} preguntas`;
-  const grade=score>=90?{t:'Sobresaliente',cls:'a'}:score>=80?{t:'Avanzado',cls:'b'}:score>=70?{t:'Competente',cls:'c'}:{t:'En desarrollo',cls:'d'};
-  document.getElementById('grade-tag').innerHTML=`<span class="tag ${grade.cls}">${grade.t}</span>`;
+  const pct=Math.round((correct/QUESTIONS.length)*100);
+  document.getElementById('res-sub').textContent=currentName;
+  document.getElementById('score-pts').textContent=correct;
+  const grade=pct>=90?{t:'Sobresaliente',cls:'a'}:pct>=80?{t:'Avanzado',cls:'b'}:pct>=70?{t:'Competente',cls:'c'}:{t:'En desarrollo',cls:'d'};
+  document.getElementById('grade-tag').innerHTML=`<span class="tag ${grade.cls}">${grade.t} — ${pct}%</span>`;
   const tb=document.getElementById('result-rows');
-  tb.innerHTML=shuffled.map((q,i)=>`<tr>
+  tb.innerHTML=QUESTIONS.map((q,i)=>`<tr>
     <td>${i+1}</td>
-    <td style="font-size:12px;">${q.text.slice(0,60)}…</td>
-    <td style="font-size:12px;">${q.opts[userAnswers[i]?q.ans:(userAnswers[i]===false?-1:q.ans)]|| q.opts[q.ans]}</td>
-    <td>${userAnswers[i]?'<span class="tag a correct-icon">Correcto</span>':'<span class="tag d wrong-icon">Incorrecto</span>'}</td>
+    <td style="font-size:12px;">${q.text.slice(3,60)}…</td>
+    <td class="${userAnswers[i]?'r-ok':'r-err'}">${userAnswers[i]?'✓':'✗'}</td>
   </tr>`).join('');
-  // fix result rows to show actual selected option
-  // Re-render with actual answers
-  tb.innerHTML='';
-  let ansIdx=0;
-  shuffled.forEach((q,i)=>{
-    const wasCorrect=userAnswers[i];
-    tb.innerHTML+=`<tr>
-      <td>${i+1}</td>
-      <td style="font-size:12px;">${q.text.slice(0,55)}…</td>
-      <td style="font-size:12px;">${q.opts[q.ans]}</td>
-      <td>${wasCorrect?'<span class="tag a">✓</span>':'<span class="tag d">✗</span>'}</td>
-    </tr>`;
-  });
-  // Save
   try{
     const records=JSON.parse(localStorage.getItem('sc250_quiz')||'[]');
-    records.push({name:currentName,group:currentGroup,answers:[...userAnswers],correct,total:shuffled.length,score,ts:Date.now()});
+    records.push({name:currentName,answers:[...userAnswers],correct,total:QUESTIONS.length,score:pct,ts:Date.now()});
     localStorage.setItem('sc250_quiz',JSON.stringify(records));
   }catch(e){}
   showScreen('s3');
 }
 
-function showTeacherPrompt(){showScreen('s4');}
+function showPublicResults(){
+  let records=[];
+  try{records=JSON.parse(localStorage.getItem('sc250_quiz')||'[]');}catch(e){}
+  const pub=document.getElementById('pub-stats');
+  if(!records.length){
+    pub.innerHTML='<p class="muted">Nadie ha respondido todavía en este dispositivo.</p>';
+    document.getElementById('pub-chart-card').classList.add('hidden');
+    document.getElementById('pub-dist-card').classList.add('hidden');
+    showScreen('s6');return;
+  }
+  document.getElementById('pub-chart-card').classList.remove('hidden');
+  document.getElementById('pub-dist-card').classList.remove('hidden');
+  const n=records.length;
+  const avg=(records.reduce((a,r)=>a+r.score,0)/n).toFixed(1);
+  const max=Math.max(...records.map(r=>r.score));
+  const min=Math.min(...records.map(r=>r.score));
+  pub.innerHTML=`<div class="stats-grid">
+    <div class="stat-box"><div class="stat-num">${n}</div><div class="stat-lbl">Participantes</div></div>
+    <div class="stat-box"><div class="stat-num">${avg}%</div><div class="stat-lbl">Promedio del grupo</div></div>
+    <div class="stat-box"><div class="stat-num">${max}%</div><div class="stat-lbl">Puntaje más alto</div></div>
+    <div class="stat-box"><div class="stat-num">${min}%</div><div class="stat-lbl">Puntaje más bajo</div></div>
+  </div>`;
+  // Per-question % correct
+  const qcorrect=Array(QUESTIONS.length).fill(0);
+  records.forEach(r=>r.answers.forEach((a,i)=>{if(a)qcorrect[i]++;}));
+  const qpct=qcorrect.map(c=>Math.round((c/n)*100));
+  const labels=QUESTIONS.map((_,i)=>'P'+(i+1));
+  const colors=qpct.map(p=>p>=70?'rgba(5,150,105,0.8)':p>=50?'rgba(234,179,8,0.8)':'rgba(220,38,38,0.8)');
+  if(chartQ){chartQ.destroy();}
+  chartQ=new Chart(document.getElementById('pub-chart'),{
+    type:'bar',
+    data:{labels,datasets:[{label:'% Correcto',data:qpct,backgroundColor:colors,borderRadius:5}]},
+    options:{plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'},grid:{color:'rgba(0,0,0,0.05)'}},x:{grid:{display:false}}},animation:{duration:600}}
+  });
+  // Distribution: 0-49, 50-69, 70-79, 80-89, 90-100
+  const buckets=[0,0,0,0,0];
+  records.forEach(r=>{
+    const s=r.score;
+    if(s<50)buckets[0]++;
+    else if(s<70)buckets[1]++;
+    else if(s<80)buckets[2]++;
+    else if(s<90)buckets[3]++;
+    else buckets[4]++;
+  });
+  if(chartDist){chartDist.destroy();}
+  chartDist=new Chart(document.getElementById('pub-dist'),{
+    type:'bar',
+    data:{
+      labels:['0–49%','50–69%','70–79%','80–89%','90–100%'],
+      datasets:[{label:'Estudiantes',data:buckets,backgroundColor:['rgba(220,38,38,0.7)','rgba(234,179,8,0.7)','rgba(59,130,246,0.7)','rgba(5,150,105,0.7)','rgba(16,185,129,0.7)'],borderRadius:5}]
+    },
+    options:{plugins:{legend:{display:false}},scales:{y:{ticks:{stepSize:1},grid:{color:'rgba(0,0,0,0.05)'}},x:{grid:{display:false}}},animation:{duration:600}}
+  });
+  showScreen('s6');
+}
 
 function checkPwd(){
   if(document.getElementById('pwd').value==='SC250'){
     document.getElementById('pwd-err').classList.add('hidden');
     buildTeacherView();showScreen('s5');
-  } else {document.getElementById('pwd-err').classList.remove('hidden');}
+  }else{document.getElementById('pwd-err').classList.remove('hidden');}
 }
 
 function buildTeacherView(){
   let records=[];
   try{records=JSON.parse(localStorage.getItem('sc250_quiz')||'[]');}catch(e){}
-  const stats=document.getElementById('teacher-stats');
-  const qstats=document.getElementById('teacher-q-stats');
-  const tbl=document.getElementById('teacher-table');
-  if(!records.length){stats.innerHTML='<p class="muted">No hay resultados guardados aún.</p>';qstats.innerHTML='';tbl.innerHTML='';return;}
-  const avg=records.reduce((a,r)=>a+r.score,0)/records.length;
-  stats.innerHTML=`
-    <div style="display:flex;gap:24px;flex-wrap:wrap;">
-      <div><div style="font-size:2rem;font-weight:700;font-family:'Fraunces',serif">${records.length}</div><div class="muted">Participantes</div></div>
-      <div><div style="font-size:2rem;font-weight:700;font-family:'Fraunces',serif">${avg.toFixed(1)}</div><div class="muted">Puntaje promedio</div></div>
-      <div><div style="font-size:2rem;font-weight:700;font-family:'Fraunces',serif">${Math.max(...records.map(r=>r.score))}</div><div class="muted">Puntaje más alto</div></div>
-    </div>`;
-  // Per-question stats
-  const qcorrect=Array(20).fill(0);
-  records.forEach(r=>{r.answers.forEach((a,i)=>{if(a)qcorrect[i]++;});});
-  let qrows='';
-  QUESTIONS.forEach((q,i)=>{
-    const pct=records.length?Math.round((qcorrect[i]/records.length)*100):0;
-    qrows+=`<tr><td>${i+1}</td><td style="font-size:12px;">${q.topic}</td><td>${q.text.slice(0,50)}…</td><td>${qcorrect[i]}/${records.length}</td><td style="color:${pct>=60?'#059669':'#DC2626'}">${pct}%</td></tr>`;
-  });
-  qstats.innerHTML=`<b style="display:block;margin-bottom:10px;">Respuestas correctas por pregunta</b>
-    <table class="tbl"><thead><tr><th>#</th><th>Tema</th><th>Pregunta</th><th>Correctas</th><th>%</th></tr></thead><tbody>${qrows}</tbody></table>`;
-  let rows=records.map(r=>`<tr><td>${r.name}</td><td>${r.group}</td><td>${r.correct}/${r.total}</td><td>${r.score}%</td><td>${new Date(r.ts).toLocaleTimeString('es-CR')}</td></tr>`).join('');
-  tbl.innerHTML=`<b style="display:block;margin:16px 0 10px;">Todos los resultados</b>
-    <table class="tbl"><thead><tr><th>Nombre</th><th>Grupo</th><th>Correctas</th><th>Puntaje</th><th>Hora</th></tr></thead><tbody>${rows}</tbody></table>`;
+  const ts=document.getElementById('t-stats');
+  const tt=document.getElementById('t-table');
+  if(!records.length){ts.innerHTML='<p class="muted">Sin datos.</p>';tt.innerHTML='';return;}
+  const avg=(records.reduce((a,r)=>a+r.score,0)/records.length).toFixed(1);
+  ts.innerHTML=`<div class="stats-grid">
+    <div class="stat-box"><div class="stat-num">${records.length}</div><div class="stat-lbl">Participantes</div></div>
+    <div class="stat-box"><div class="stat-num">${avg}%</div><div class="stat-lbl">Promedio</div></div>
+  </div>`;
+  const qcorrect=Array(QUESTIONS.length).fill(0);
+  records.forEach(r=>r.answers.forEach((a,i)=>{if(a)qcorrect[i]++;}));
+  let rows=records.map(r=>`<tr><td>${r.name}</td><td>${r.correct}/${r.total}</td><td>${r.score}%</td><td>${new Date(r.ts).toLocaleTimeString('es-CR')}</td></tr>`).join('');
+  tt.innerHTML=`<table class="tbl"><thead><tr><th>Nombre</th><th>Correctas</th><th>Puntaje</th><th>Hora</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 function exportCSV(){
   let records=[];try{records=JSON.parse(localStorage.getItem('sc250_quiz')||'[]');}catch(e){}
-  if(!records.length){alert('No hay datos.');return;}
-  const hdr='Nombre,Grupo,Correctas,Total,Puntaje,Hora\n';
-  const rows=records.map(r=>`"${r.name}",${r.group},${r.correct},${r.total},${r.score},"${new Date(r.ts).toLocaleString('es-CR')}"`).join('\n');
-  const blob=new Blob([hdr+rows],{type:'text/csv'});
+  if(!records.length){alert('Sin datos.');return;}
+  const blob=new Blob(['Nombre,Correctas,Total,Puntaje,Hora\n'+records.map(r=>`"${r.name}",${r.correct},${r.total},${r.score}%,"${new Date(r.ts).toLocaleString('es-CR')}"`).join('\n')],{type:'text/csv'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='quiz_sc250.csv';a.click();
 }
 
-function resetQuiz(){currentQ=0;userAnswers=[];shuffled=shuffle(QUESTIONS);document.getElementById('nom').value='';document.getElementById('grp').value='';showScreen('s1');}
+function resetQuiz(){currentQ=0;userAnswers=[];document.getElementById('nom').value='';showScreen('s1');}
 </script>
 </body>
 </html>
