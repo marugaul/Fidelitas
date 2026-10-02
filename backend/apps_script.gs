@@ -16,13 +16,15 @@
  * Cada envío queda como una fila en la hoja "quiz" o "eval".
  */
 
+const SHEET_ID = '1ROIASNdSa0pW75309gmxOeZ5coto0yeWLWAQM4fW4yY';
+
 const SHEETS = {
   quiz: ['ts', 'fecha', 'nombre', 'correctas', 'total', 'puntaje', 'respuestas', 'json'],
   eval: ['ts', 'fecha', 'evaluador', 'grupo', 'contenido', 'estructura', 'dominio', 'contexto', 'reflexion', 'total', 'json'],
 };
 
 function getSheet(app) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = SpreadsheetApp.openById(SHEET_ID);
   let sh = ss.getSheetByName(app);
   if (!sh) {
     sh = ss.insertSheet(app);
