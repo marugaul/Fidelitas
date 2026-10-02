@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Evaluación de Grupos · SC-250 · Semana 4</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,300&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@0,400;0,600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{--bg:#F7F6F2;--surface:#FFFFFF;--text:#111118;--sub:#4B4A5E;--muted:#8F8DA4;--rule:#E2E0DA;--accent:#1A46CC;--green:#059669;}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F0E17;--surface:#181724;--text:#ECEAF6;--sub:#9896B2;--muted:#5C5A78;--rule:#22203A;--accent:#5B8DF6;}}
@@ -152,6 +153,14 @@ input:focus{border-color:var(--accent);}
   <h1>Vista del Profesor</h1>
   <p class="subtitle">Promedios por grupo</p>
   <div id="t-overview" class="card"></div>
+  <div class="card hidden" id="t-chart-card">
+    <b style="display:block;margin-bottom:14px;">Promedio total por grupo (de 100)</b>
+    <canvas id="t-chart-groups" height="220"></canvas>
+  </div>
+  <div class="card hidden" id="t-crit-card">
+    <b style="display:block;margin-bottom:14px;">Promedio por criterio (de 5) · todos los grupos</b>
+    <canvas id="t-chart-crit" height="180"></canvas>
+  </div>
   <div id="t-groups" style="margin-top:16px;"></div>
   <div id="t-detail" style="margin-top:16px;"></div>
   <button class="export-btn" onclick="exportCSV()">Exportar CSV</button>
@@ -229,6 +238,7 @@ function rosterStatus(records){
 let currentName = '';
 let currentGroup = 0; // group being rated now
 const ratings = {};
+let chartGroups = null, chartCrit = null;
 
 function showScreen(id){
   ['s1','s2','s3','s4','s5'].forEach(s=>document.getElementById(s).classList.add('hidden'));
@@ -354,7 +364,15 @@ async function buildTeacherView(){
   const tdetail=document.getElementById('t-detail');
   overview.innerHTML='<p class="muted">Cargando…</p>';tgroups.innerHTML='';tdetail.innerHTML='';
   const records=await loadRecords();
-  if(!records.length){overview.innerHTML='<p class="muted">Sin evaluaciones guardadas.</p>';return;}
+  const chartCard=document.getElementById('t-chart-card');
+  const critCard=document.getElementById('t-crit-card');
+  if(!records.length){
+    overview.innerHTML='<p class="muted">Sin evaluaciones guardadas.</p>';
+    chartCard.classList.add('hidden');critCard.classList.add('hidden');
+    return;
+  }
+  chartCard.classList.remove('hidden');critCard.classList.remove('hidden');
+  buildCharts(records);
   const raters=[...new Set(records.map(r=>r.rater))];
   const avg=(records.reduce((a,r)=>a+r.total,0)/records.length).toFixed(1);
 
@@ -406,6 +424,32 @@ async function buildTeacherView(){
   let rows=records.map(r=>`<tr><td>${r.rater}</td><td>Grupo ${r.group}</td><td>${r.total}</td><td>${new Date(r.ts).toLocaleTimeString('es-CR')}</td></tr>`).join('');
   tdetail.innerHTML=`<b style="display:block;margin:16px 0 10px;">Todas las evaluaciones individuales</b>
     <table class="tbl"><thead><tr><th>Evaluador</th><th>Grupo</th><th>Puntaje</th><th>Hora</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function buildCharts(records){
+  const labels=[],totals=[],colors=[];
+  for(let g=1;g<=N_GROUPS;g++){
+    const gr=records.filter(r=>r.group===g);
+    labels.push('Grupo '+g);
+    if(!gr.length){totals.push(null);colors.push('rgba(0,0,0,0.08)');continue;}
+    const avg=gr.reduce((a,r)=>a+r.total,0)/gr.length;
+    totals.push(+avg.toFixed(1));
+    colors.push(avg>=90?'rgba(5,150,105,0.8)':avg>=70?'rgba(26,70,204,0.8)':avg>=50?'rgba(234,179,8,0.8)':'rgba(220,38,38,0.8)');
+  }
+  if(chartGroups)chartGroups.destroy();
+  chartGroups=new Chart(document.getElementById('t-chart-groups'),{
+    type:'bar',
+    data:{labels,datasets:[{label:'Promedio /100',data:totals,backgroundColor:colors,borderRadius:5}]},
+    options:{plugins:{legend:{display:false}},scales:{y:{min:0,max:100,grid:{color:'rgba(0,0,0,0.05)'}},x:{grid:{display:false}}},animation:{duration:600}}
+  });
+
+  const critAvg=CRITERIA.map(c=>+(records.reduce((a,r)=>a+(r.ratings[c.key]||0),0)/records.length).toFixed(2));
+  if(chartCrit)chartCrit.destroy();
+  chartCrit=new Chart(document.getElementById('t-chart-crit'),{
+    type:'bar',
+    data:{labels:CRITERIA.map(c=>c.name),datasets:[{label:'Promedio /5',data:critAvg,backgroundColor:'rgba(26,70,204,0.75)',borderRadius:5}]},
+    options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{min:0,max:5,grid:{color:'rgba(0,0,0,0.05)'}},y:{grid:{display:false}}},animation:{duration:600}}
+  });
 }
 
 async function exportCSV(){
