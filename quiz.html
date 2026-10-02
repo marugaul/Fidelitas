@@ -142,7 +142,7 @@ input:focus{border-color:var(--accent);}
 <!-- S5: TEACHER DETAIL (with names) -->
 <div class="page hidden" id="s5">
   <h1>Vista del Profesor</h1>
-  <p class="subtitle">Todos los datos — guardados en este dispositivo</p>
+  <p class="subtitle">Todos los datos</p>
   <div id="t-stats" class="card"></div>
   <div id="t-table" style="margin-top:16px;"></div>
   <button class="export-btn" onclick="exportCSV()">Exportar CSV</button>
@@ -152,7 +152,7 @@ input:focus{border-color:var(--accent);}
 <!-- S6: PUBLIC RESULTS (no names) -->
 <div class="page hidden" id="s6">
   <h1>Resultados del Grupo</h1>
-  <p class="subtitle">Resumen anónimo de todos los que han respondido en este dispositivo</p>
+  <p class="subtitle">Resumen anónimo de todos los que han respondido</p>
   <div id="pub-stats" class="card"></div>
   <div class="card" style="margin-top:0;" id="pub-chart-card">
     <b style="display:block;margin-bottom:14px;">% de aciertos por pregunta</b>
@@ -184,6 +184,30 @@ const QUESTIONS = [
 
 let currentQ=0, userAnswers=[], answered=false, currentName='';
 let chartQ=null, chartDist=null;
+
+// URL de la aplicación web de Google Apps Script (ver backend/apps_script.gs). Vacío = solo localStorage.
+const API_URL = '';
+const LS_KEY = 'sc250_quiz';
+
+function localRecords(){try{return JSON.parse(localStorage.getItem(LS_KEY)||'[]');}catch(e){return[];}}
+
+async function remoteSave(record){
+  if(!API_URL)return;
+  try{await fetch(API_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({app:'quiz',record})});}catch(e){}
+}
+
+async function loadRecords(){
+  const local=localRecords();
+  if(!API_URL)return local;
+  try{
+    const res=await fetch(API_URL+'?app=quiz&t='+Date.now());
+    const remote=await res.json();
+    if(!Array.isArray(remote))return local;
+    const seen=new Set(remote.map(r=>r.name+'|'+r.ts));
+    local.forEach(r=>{if(!seen.has(r.name+'|'+r.ts))remote.push(r);});
+    return remote;
+  }catch(e){return local;}
+}
 
 function showScreen(id){['s1','s2','s3','s4','s5','s6'].forEach(s=>document.getElementById(s).classList.add('hidden'));document.getElementById(id).classList.remove('hidden');}
 
@@ -259,23 +283,26 @@ function showResult(){
     <td style="font-size:12px;">${q.text.slice(3,60)}…</td>
     <td class="${userAnswers[i]?'r-ok':'r-err'}">${userAnswers[i]?'✓':'✗'}</td>
   </tr>`).join('');
+  const record={name:currentName,answers:[...userAnswers],correct,total:QUESTIONS.length,score:pct,ts:Date.now()};
   try{
-    const records=JSON.parse(localStorage.getItem('sc250_quiz')||'[]');
-    records.push({name:currentName,answers:[...userAnswers],correct,total:QUESTIONS.length,score:pct,ts:Date.now()});
-    localStorage.setItem('sc250_quiz',JSON.stringify(records));
+    const records=localRecords();
+    records.push(record);
+    localStorage.setItem(LS_KEY,JSON.stringify(records));
   }catch(e){}
+  remoteSave(record);
   showScreen('s3');
 }
 
-function showPublicResults(){
-  let records=[];
-  try{records=JSON.parse(localStorage.getItem('sc250_quiz')||'[]');}catch(e){}
+async function showPublicResults(){
   const pub=document.getElementById('pub-stats');
+  pub.innerHTML='<p class="muted">Cargando resultados…</p>';
+  showScreen('s6');
+  const records=await loadRecords();
   if(!records.length){
-    pub.innerHTML='<p class="muted">Nadie ha respondido todavía en este dispositivo.</p>';
+    pub.innerHTML='<p class="muted">Nadie ha respondido todavía.</p>';
     document.getElementById('pub-chart-card').classList.add('hidden');
     document.getElementById('pub-dist-card').classList.add('hidden');
-    showScreen('s6');return;
+    return;
   }
   document.getElementById('pub-chart-card').classList.remove('hidden');
   document.getElementById('pub-dist-card').classList.remove('hidden');
@@ -320,7 +347,6 @@ function showPublicResults(){
     },
     options:{plugins:{legend:{display:false}},scales:{y:{ticks:{stepSize:1},grid:{color:'rgba(0,0,0,0.05)'}},x:{grid:{display:false}}},animation:{duration:600}}
   });
-  showScreen('s6');
 }
 
 function checkPwd(){
@@ -330,12 +356,12 @@ function checkPwd(){
   }else{document.getElementById('pwd-err').classList.remove('hidden');}
 }
 
-function buildTeacherView(){
-  let records=[];
-  try{records=JSON.parse(localStorage.getItem('sc250_quiz')||'[]');}catch(e){}
+async function buildTeacherView(){
   const ts=document.getElementById('t-stats');
   const tt=document.getElementById('t-table');
-  if(!records.length){ts.innerHTML='<p class="muted">Sin datos.</p>';tt.innerHTML='';return;}
+  ts.innerHTML='<p class="muted">Cargando…</p>';tt.innerHTML='';
+  const records=await loadRecords();
+  if(!records.length){ts.innerHTML='<p class="muted">Sin datos.</p>';return;}
   const avg=(records.reduce((a,r)=>a+r.score,0)/records.length).toFixed(1);
   ts.innerHTML=`<div class="stats-grid">
     <div class="stat-box"><div class="stat-num">${records.length}</div><div class="stat-lbl">Participantes</div></div>
@@ -347,8 +373,8 @@ function buildTeacherView(){
   tt.innerHTML=`<table class="tbl"><thead><tr><th>Nombre</th><th>Correctas</th><th>Puntaje</th><th>Hora</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
-function exportCSV(){
-  let records=[];try{records=JSON.parse(localStorage.getItem('sc250_quiz')||'[]');}catch(e){}
+async function exportCSV(){
+  const records=await loadRecords();
   if(!records.length){alert('Sin datos.');return;}
   const blob=new Blob(['Nombre,Correctas,Total,Puntaje,Hora\n'+records.map(r=>`"${r.name}",${r.correct},${r.total},${r.score}%,"${new Date(r.ts).toLocaleString('es-CR')}"`).join('\n')],{type:'text/csv'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='quiz_sc250.csv';a.click();

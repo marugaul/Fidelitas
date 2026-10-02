@@ -150,7 +150,7 @@ input:focus{border-color:var(--accent);}
 <!-- S5: TEACHER VIEW -->
 <div class="page hidden" id="s5">
   <h1>Vista del Profesor</h1>
-  <p class="subtitle">Promedios por grupo · guardados en este dispositivo</p>
+  <p class="subtitle">Promedios por grupo</p>
   <div id="t-overview" class="card"></div>
   <div id="t-groups" style="margin-top:16px;"></div>
   <div id="t-detail" style="margin-top:16px;"></div>
@@ -259,10 +259,32 @@ function selectStar(key,val){
   document.getElementById('d-'+key).textContent=LEVELS[val-1];
 }
 
+// URL de la aplicación web de Google Apps Script (ver backend/apps_script.gs). Vacío = solo localStorage.
+const API_URL = '';
+const LS_KEY = 'sc250_eval';
+
 function getRecords(){
-  try{return JSON.parse(localStorage.getItem('sc250_eval')||'[]');}catch(e){return[];}
+  try{return JSON.parse(localStorage.getItem(LS_KEY)||'[]');}catch(e){return[];}
 }
-function saveRecords(r){try{localStorage.setItem('sc250_eval',JSON.stringify(r));}catch(e){}}
+function saveRecords(r){try{localStorage.setItem(LS_KEY,JSON.stringify(r));}catch(e){}}
+
+async function remoteSave(record){
+  if(!API_URL)return;
+  try{await fetch(API_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({app:'eval',record})});}catch(e){}
+}
+
+async function loadRecords(){
+  const local=getRecords();
+  if(!API_URL)return local;
+  try{
+    const res=await fetch(API_URL+'?app=eval&t='+Date.now());
+    const remote=await res.json();
+    if(!Array.isArray(remote))return local;
+    const seen=new Set(remote.map(r=>r.rater+'|'+r.group+'|'+r.ts));
+    local.forEach(r=>{if(!seen.has(r.rater+'|'+r.group+'|'+r.ts))remote.push(r);});
+    return remote;
+  }catch(e){return local;}
+}
 
 function ratedGroups(){
   return getRecords().filter(r=>r.rater===currentName).map(r=>r.group);
@@ -308,9 +330,11 @@ function submitRubric(){
   for(const c of CRITERIA){if(!ratings[c.key]){alert('Por favor califica todos los criterios.');return;}}
   let total=0;
   CRITERIA.forEach(c=>{total+=Math.round((ratings[c.key]/5)*c.max);});
+  const record={rater:currentName,group:currentGroup,ratings:{...ratings},total,ts:Date.now()};
   const records=getRecords();
-  records.push({rater:currentName,group:currentGroup,ratings:{...ratings},total,ts:Date.now()});
+  records.push(record);
   saveRecords(records);
+  remoteSave(record);
   toast(`✓ Grupo ${currentGroup} calificado — ${total}/100 pts`);
   showScreen('s2');
   renderDashboard();
@@ -323,12 +347,13 @@ function checkPwd(){
   }else{document.getElementById('pwd-err').classList.remove('hidden');}
 }
 
-function buildTeacherView(){
-  const records=getRecords();
+async function buildTeacherView(){
   const overview=document.getElementById('t-overview');
   const tgroups=document.getElementById('t-groups');
   const tdetail=document.getElementById('t-detail');
-  if(!records.length){overview.innerHTML='<p class="muted">Sin evaluaciones guardadas.</p>';tgroups.innerHTML='';tdetail.innerHTML='';return;}
+  overview.innerHTML='<p class="muted">Cargando…</p>';tgroups.innerHTML='';tdetail.innerHTML='';
+  const records=await loadRecords();
+  if(!records.length){overview.innerHTML='<p class="muted">Sin evaluaciones guardadas.</p>';return;}
   const raters=[...new Set(records.map(r=>r.rater))];
   const avg=(records.reduce((a,r)=>a+r.total,0)/records.length).toFixed(1);
 
@@ -382,8 +407,8 @@ function buildTeacherView(){
     <table class="tbl"><thead><tr><th>Evaluador</th><th>Grupo</th><th>Puntaje</th><th>Hora</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
-function exportCSV(){
-  const records=getRecords();
+async function exportCSV(){
+  const records=await loadRecords();
   if(!records.length){alert('Sin datos.');return;}
   const hdr='Evaluador,Grupo,Contenido,Estructura,Dominio,Contexto,Reflexion,Total,Hora\n';
   const rows=records.map(r=>`"${r.rater}",${r.group},${r.ratings.contenido||''},${r.ratings.estructura||''},${r.ratings.dominio||''},${r.ratings.contexto||''},${r.ratings.reflexion||''},${r.total},"${new Date(r.ts).toLocaleString('es-CR')}"`).join('\n');
