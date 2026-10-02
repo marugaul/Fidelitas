@@ -208,6 +208,7 @@ const ROSTER = [
   'SOLIS BENAVIDES MELISSA MARIA',
   'ULATE ALPIZAR LUIS RICARDO',
 ];
+const PROFESOR = 'PROF. MARCO UGARTE ULATE';
 
 function norm(s){ return s.toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim(); }
 
@@ -419,6 +420,10 @@ async function exportCSV(){
 // Populate name dropdown from roster
 (function(){
   const sel = document.getElementById('nom');
+  const prof = document.createElement('option');
+  prof.value = PROFESOR;
+  prof.textContent = '★ ' + PROFESOR;
+  sel.appendChild(prof);
   ROSTER.forEach(name => {
     const opt = document.createElement('option');
     opt.value = name;
