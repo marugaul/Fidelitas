@@ -265,7 +265,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzQAasD6WzoahRSqfj9cUAZ
 const LS_KEY = 'sc250_eval';
 
 function getRecords(){
-  try{return JSON.parse(localStorage.getItem(LS_KEY)||'[]');}catch(e){return[];}
+  try{return JSON.parse(localStorage.getItem(LS_KEY)||'[]').filter(r=>r&&r.rater&&r.group);}catch(e){return[];}
 }
 function saveRecords(r){try{localStorage.setItem(LS_KEY,JSON.stringify(r));}catch(e){}}
 

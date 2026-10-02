@@ -189,7 +189,7 @@ let chartQ=null, chartDist=null;
 const API_URL = 'https://script.google.com/macros/s/AKfycbzQAasD6WzoahRSqfj9cUAZAdkRroE_yQPBkFBPM79so2DXjafeyBFM8oYMJDiwoh26/exec';
 const LS_KEY = 'sc250_quiz';
 
-function localRecords(){try{return JSON.parse(localStorage.getItem(LS_KEY)||'[]');}catch(e){return[];}}
+function localRecords(){try{return JSON.parse(localStorage.getItem(LS_KEY)||'[]').filter(r=>r&&r.name&&Array.isArray(r.answers));}catch(e){return[];}}
 
 async function remoteSave(record){
   if(!API_URL)return;
