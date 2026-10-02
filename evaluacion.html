@@ -166,6 +166,63 @@ const CRITERIA = [
 const LEVELS = ['Insuficiente','En desarrollo','Competente','Avanzado','Sobresaliente'];
 const N_GROUPS = 9;
 
+const ROSTER = [
+  'ACUÑA BALLESTERO JOSE ROBERTO',
+  'ALFARO RIVERA DEYNON',
+  'ALFARO RIVERA CAMILA ALEXANDRA',
+  'AMADOR FERNANDEZ NATHALIE JOHANNA',
+  'ARIAS BECERRA LUIS ALEJANDRO',
+  'AZOFEIFA ABARCA AARON DE LA CRUZ',
+  'AZOFEIFA AMPIE ALLAN ALBERTO',
+  'BARRANTES JIMENEZ JONATHAN STEVEN',
+  'BRENES HERRERA MARIA LAURA',
+  'CAMPOS AGUILAR NATALIA',
+  'CHAVEZ POMACAJA JOY DANIELA',
+  'CORTES TREJOS FRANCO ALEJANDRO',
+  'CRUZ PEREZ JOSE ANDRES',
+  'CUBERO UMAÑA JOSE PABLO',
+  'ESPINOZA GONZALEZ JOHAN ESTEBAN',
+  'FAJARDO TORRES MARIA FERNANDA',
+  'GARRO BONILLA ADRIAN ULISES',
+  'GUTIERREZ MONGE GABRIEL ESTEFANO',
+  'HERNANDEZ DELGADO ANA LIDIA',
+  'JIMENEZ LUNA GRAVYN',
+  'MARIN MONGE ERICK BERNARDO',
+  'MIRANDA VARELA WENDY CAROLINA',
+  'MORA ALFARO JEFERSON ANDREY',
+  'MORA SALAS JOSUE',
+  'MURILLO TAKAHASHI KYOMI',
+  'NUÑEZ ROJAS ARMANDO JOSUE',
+  'NUÑEZ TERCERO MARIAM',
+  'OROZCO PEREZ DANIEL',
+  'PICADO PIEDRA TOMAS ALBERTO',
+  'QUESADA AGUILAR DANIEL STEVENS',
+  'QUIROS OBANDO LUIS CARLOS',
+  'QUIROS RAMIREZ NICOLE STEYSI',
+  'ROJAS GONZALEZ WALTER FRANCISCO',
+  'SOLIS BENAVIDES MELISSA MARIA',
+  'ULATE ALPIZAR LUIS RICARDO',
+];
+
+function norm(s){ return s.toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim(); }
+
+// Returns true if raterName fuzzy-matches a roster entry (any word of 4+ chars in common)
+function matchesRoster(raterName, rosterEntry){
+  const rn = norm(raterName);
+  const re = norm(rosterEntry);
+  if(re.includes(rn) || rn.includes(re)) return true;
+  const words = rn.split(/\s+/).filter(w=>w.length>=4);
+  return words.some(w => re.includes(w));
+}
+
+function rosterStatus(records){
+  const raters = [...new Set(records.map(r=>r.rater))];
+  return ROSTER.map(name => {
+    const matched = raters.find(r => matchesRoster(r, name));
+    return {name, matched: matched || null};
+  });
+}
+
 let currentName = '';
 let currentGroup = 0; // group being rated now
 const ratings = {};
@@ -272,13 +329,34 @@ function buildTeacherView(){
   if(!records.length){overview.innerHTML='<p class="muted">Sin evaluaciones guardadas.</p>';tgroups.innerHTML='';tdetail.innerHTML='';return;}
   const raters=[...new Set(records.map(r=>r.rater))];
   const avg=(records.reduce((a,r)=>a+r.total,0)/records.length).toFixed(1);
+
+  // Roster match
+  const status = rosterStatus(records);
+  const present = status.filter(s=>s.matched);
+  const missing = status.filter(s=>!s.matched);
+
   overview.innerHTML=`<div class="stat-row">
     <div class="stat-box"><div class="stat-num">${records.length}</div><div class="stat-lbl">Evaluaciones</div></div>
-    <div class="stat-box"><div class="stat-num">${raters.length}</div><div class="stat-lbl">Evaluadores</div></div>
+    <div class="stat-box"><div class="stat-num">${present.length}/${ROSTER.length}</div><div class="stat-lbl">Alumnos participaron</div></div>
+    <div class="stat-box"><div class="stat-num" style="color:${missing.length?'#DC2626':'#059669'}">${missing.length}</div><div class="stat-lbl">Faltan por evaluar</div></div>
     <div class="stat-box"><div class="stat-num">${avg}</div><div class="stat-lbl">Promedio general</div></div>
   </div>`;
+
+  // Missing students
+  let missingHTML='';
+  if(missing.length){
+    missingHTML=`<div class="card" style="margin-top:0;border-color:#FCA5A5;">
+      <b style="color:#DC2626;display:block;margin-bottom:10px;">⚠ Faltan por evaluar (${missing.length})</b>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px;">
+        ${missing.map(s=>`<div style="font-size:13px;padding:4px 8px;background:#FEF2F2;border-radius:5px;color:#991B1B;">✗ ${s.name}</div>`).join('')}
+      </div>
+    </div>`;
+  } else {
+    missingHTML=`<div class="card" style="margin-top:0;border-color:#6EE7B7;text-align:center;color:#065F46;font-weight:600;">✓ Todos los alumnos han evaluado</div>`;
+  }
+
   // Group averages
-  let groupHTML='<b style="display:block;margin-bottom:10px;">Promedio por grupo (todas las evaluaciones)</b><table class="tbl"><thead><tr><th>Grupo</th><th>Evaluaciones</th>';
+  let groupHTML='<b style="display:block;margin-bottom:10px;">Promedio por grupo (todas las evaluaciones)</b><table class="tbl"><thead><tr><th>Grupo</th><th>Eval.</th>';
   CRITERIA.forEach(c=>{groupHTML+=`<th>${c.name.split(' ')[0]}</th>`;});
   groupHTML+='<th>Total/100</th></tr></thead><tbody>';
   for(let g=1;g<=N_GROUPS;g++){
@@ -293,7 +371,9 @@ function buildTeacherView(){
     groupHTML+=`<td><span class="score-pill">${tavg}</span></td></tr>`;
   }
   groupHTML+='</tbody></table>';
-  tgroups.innerHTML=groupHTML;
+
+  tgroups.innerHTML=missingHTML+'<div style="margin-top:16px;">'+groupHTML+'</div>';
+
   // All records
   let rows=records.map(r=>`<tr><td>${r.rater}</td><td>Grupo ${r.group}</td><td>${r.total}</td><td>${new Date(r.ts).toLocaleTimeString('es-CR')}</td></tr>`).join('');
   tdetail.innerHTML=`<b style="display:block;margin:16px 0 10px;">Todas las evaluaciones individuales</b>
