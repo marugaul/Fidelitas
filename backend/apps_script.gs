@@ -13,13 +13,17 @@
  *  5. Copiar la "URL de la aplicación web" (termina en /exec)
  *     y pegarla en la constante API_URL de quiz.html y evaluacion.html.
  *
- * Cada envío queda como una fila en la hoja "quiz" o "eval".
+ * Cada envío queda como una fila en la hoja "quiz", "eval" o "poker".
+ *
+ * NOTA: si ya tenías una implementación, después de pegar este código hay que
+ * hacer Implementar → Administrar implementaciones → editar → Versión: Nueva versión.
  */
 
 const SHEET_ID = '1ROIASNdSa0pW75309gmxOeZ5coto0yeWLWAQM4fW4yY';
 
 const SHEETS = {
   quiz: ['ts', 'fecha', 'nombre', 'correctas', 'total', 'puntaje', 'respuestas', 'json'],
+  poker: ['ts', 'fecha', 'tipo', 'tarea', 'nombre', 'valor', 'texto', 'json'],
   eval: ['ts', 'fecha', 'evaluador', 'grupo', 'contenido', 'estructura', 'dominio', 'contexto', 'reflexion', 'total', 'json'],
 };
 
@@ -45,6 +49,9 @@ function doPost(e) {
     const fecha = new Date(r.ts || Date.now());
     const row = app === 'quiz'
       ? [r.ts, fecha, r.name, r.correct, r.total, r.score, JSON.stringify(r.answers), JSON.stringify(r)]
+      : app === 'poker'
+      ? [r.ts, fecha, r.type, r.task || '', r.name, r.value != null ? r.value : (r.final != null ? r.final : ''),
+         r.title || '', JSON.stringify(r)]
       : [r.ts, fecha, r.rater, r.group, r.ratings.contenido, r.ratings.estructura, r.ratings.dominio,
          r.ratings.contexto, r.ratings.reflexion, r.total, JSON.stringify(r)];
     getSheet(app).appendRow(row);
@@ -58,7 +65,7 @@ function doPost(e) {
 
 function doGet(e) {
   const app = (e.parameter && e.parameter.app) || '';
-  if (!SHEETS[app]) return json({ ok: false, error: 'app must be quiz or eval' });
+  if (!SHEETS[app]) return json({ ok: false, error: 'app must be quiz, eval or poker' });
   const sh = getSheet(app);
   const last = sh.getLastRow();
   if (last < 2) return json([]);
