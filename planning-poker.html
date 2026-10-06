@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planning Poker · SC-250 · Gestión de pruebas</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,300&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@0,400;0,600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{--bg:#F7F6F2;--surface:#FFFFFF;--text:#111118;--sub:#4B4A5E;--muted:#8F8DA4;--rule:#E2E0DA;--accent:#1A46CC;--accent-soft:#E6ECFB;--green:#059669;--green-soft:#D1FAE5;--amber-soft:#FEF3C7;--amber-text:#92400E;--red:#DC2626;--red-soft:#FEE2E2;}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F0E17;--surface:#181724;--text:#ECEAF6;--sub:#9896B2;--muted:#5C5A78;--rule:#22203A;--accent:#5B8DF6;--accent-soft:#1D2547;--green-soft:#0B3B2E;--amber-soft:#3A2D0B;--amber-text:#FCD34D;--red-soft:#4A1717;}}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5;}
+header{display:flex;align-items:center;gap:12px;padding:12px 24px;border-bottom:1px solid var(--rule);background:var(--surface);flex-wrap:wrap;}
+header a{color:var(--muted);text-decoration:none;font-size:13px;}
+header a:hover{color:var(--accent);}
+header span{color:var(--muted);font-size:13px;}
+.page{max-width:860px;margin:0 auto;padding:32px 20px 60px;}
+h1{font-family:'Fraunces',serif;font-size:2rem;font-weight:700;margin-bottom:6px;}
+h2{font-family:'Fraunces',serif;font-size:1.25rem;margin-bottom:8px;}
+.subtitle{color:var(--sub);font-size:15px;margin-bottom:24px;}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:20px;margin-bottom:16px;}
+label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;}
+input,select,textarea{width:100%;padding:9px 12px;border:1.5px solid var(--rule);border-radius:7px;font-size:14px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);outline:none;}
+textarea{resize:vertical;min-height:70px;}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);}
+.field{margin-bottom:14px;}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:560px){.row{grid-template-columns:1fr;}}
+.btn{display:inline-block;padding:10px 22px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.btn:hover{opacity:.88;}
+.btn.block{width:100%;}
+.btn.outline{background:none;border:2px solid var(--accent);color:var(--accent);}
+.btn.sm{padding:6px 14px;font-size:12px;}
+.btn.danger{background:var(--red);}
+.hidden{display:none!important;}
+.muted{color:var(--muted);font-size:13px;}
+.alert{padding:12px 16px;border-radius:8px;background:var(--amber-soft);color:var(--amber-text);font-size:14px;margin-bottom:16px;}
+.role-pick{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.role-opt{border:2px solid var(--rule);border-radius:10px;padding:14px;cursor:pointer;background:var(--surface);text-align:left;font-family:'DM Sans',sans-serif;color:var(--text);}
+.role-opt b{display:block;margin-bottom:4px;}
+.role-opt span{font-size:12px;color:var(--sub);}
+.role-opt.on{border-color:var(--accent);background:var(--accent-soft);}
+/* Tabs */
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--rule);margin-bottom:20px;flex-wrap:wrap;}
+.tab{padding:10px 16px;background:none;border:none;border-bottom:3px solid transparent;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent);}
+/* Task cards */
+.task-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:6px;}
+.task-id{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);}
+.task-title{font-weight:600;font-size:16px;}
+.task-desc{font-size:13px;color:var(--sub);margin-bottom:12px;}
+.deck{display:flex;gap:8px;flex-wrap:wrap;}
+.poker-card{width:46px;height:64px;border:2px solid var(--rule);border-radius:8px;background:var(--surface);color:var(--text);font-family:'Fraunces',serif;font-size:18px;font-weight:700;cursor:pointer;transition:transform .12s,border-color .12s;}
+.poker-card:hover{transform:translateY(-3px);border-color:var(--accent);}
+.poker-card.on{background:var(--accent);border-color:var(--accent);color:#fff;transform:translateY(-6px);}
+.poker-card:disabled{cursor:default;opacity:.55;transform:none;}
+.poker-card.on:disabled{opacity:1;}
+.status{display:flex;gap:10px;align-items:center;margin-top:12px;font-size:13px;color:var(--sub);flex-wrap:wrap;}
+.pill{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;}
+.pill.wait{background:var(--amber-soft);color:var(--amber-text);}
+.pill.open{background:var(--green-soft);color:var(--green);}
+.pill.hot{background:var(--red-soft);color:var(--red);}
+.dist{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+.dist-item{text-align:center;min-width:46px;}
+.dist-card{width:46px;height:56px;border-radius:8px;background:var(--accent-soft);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;font-size:18px;}
+.dist-n{font-size:11px;color:var(--muted);margin-top:2px;}
+.stats{display:flex;gap:22px;flex-wrap:wrap;margin-top:12px;}
+.stat b{display:block;font-family:'Fraunces',serif;font-size:1.5rem;line-height:1.1;}
+.stat span{font-size:11px;color:var(--muted);}
+/* QA */
+.tc{border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:8px;padding:12px 14px;margin-bottom:10px;background:var(--surface);}
+.tc-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px;}
+.tc-title{font-weight:600;font-size:14px;}
+.tc dl{display:grid;grid-template-columns:110px 1fr;gap:4px 10px;font-size:13px;}
+.tc dt{color:var(--muted);}
+.tc dd{white-space:pre-wrap;}
+.tag{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;background:var(--accent-soft);color:var(--accent);}
+.tag.alta{background:var(--red-soft);color:var(--red);}
+.tag.media{background:var(--amber-soft);color:var(--amber-text);}
+.tag.baja{background:var(--green-soft);color:var(--green);}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.tbl th{background:var(--accent);color:#fff;padding:8px 10px;text-align:left;}
+.tbl td{padding:7px 10px;border-bottom:1px solid var(--rule);vertical-align:top;}
+.qr-card{display:flex;gap:24px;align-items:center;flex-wrap:wrap;}
+.qr-box{background:#fff;padding:12px;border-radius:10px;border:1px solid var(--rule);line-height:0;}
+.qr-box.big{position:fixed;inset:0;margin:auto;width:min(92vw,92vh);height:min(92vw,92vh);z-index:50;display:flex;align-items:center;justify-content:center;padding:4vmin;box-shadow:0 0 0 100vmax rgba(0,0,0,.75);}
+.qr-box.big img,.qr-box.big canvas{width:100%!important;height:100%!important;}
+.userbar{display:flex;gap:10px;align-items:center;margin-left:auto;font-size:13px;color:var(--sub);}
+</style>
+</head>
+<body>
+<header>
+  <a href="index.html">← SC-250</a>
+  <span>/</span>
+  <span>Gestión de pruebas · Planning Poker</span>
+  <div class="userbar hidden" id="userbar">
+    <span id="ub-text"></span>
+    <button class="btn sm outline" onclick="logout()">Salir</button>
+  </div>
+</header>
+
+<!-- ENTRADA -->
+<div class="page" id="s1">
+  <h1>Planning Poker<br><em style="font-style:italic;color:var(--accent)">y diseño de pruebas</em></h1>
+  <p class="subtitle">Dos fases sobre las mismas tareas: primero un grupo <b>estima el esfuerzo</b> con cartas Fibonacci; después otro grupo actúa como <b>QA</b> y define los casos de prueba de cada tarea.</p>
+  <div class="card">
+    <div class="field">
+      <label for="nom">Tu nombre</label>
+      <select id="nom"><option value="">— elige tu nombre —</option></select>
+    </div>
+    <label>Tu rol en esta actividad</label>
+    <div class="role-pick">
+      <button type="button" class="role-opt" id="r-dev" onclick="pickRole('dev')"><b>🃏 Estimador</b><span>Voto el esfuerzo de cada tarea con Planning Poker.</span></button>
+      <button type="button" class="role-opt" id="r-qa" onclick="pickRole('qa')"><b>🧪 QA</b><span>Defino los casos de prueba de cada tarea.</span></button>
+    </div>
+  </div>
+  <button class="btn block" onclick="enter()">Entrar →</button>
+  <p style="text-align:center;margin-top:16px;"><a href="#" onclick="showProf();return false;" style="color:var(--accent);font-size:14px;">Soy el profesor → Panel de control</a></p>
+</div>
+
+<!-- CÓDIGO PROFESOR -->
+<div class="page hidden" id="s2">
+  <h1>Panel del profesor</h1>
+  <div class="card">
+    <label for="pwd">Código de acceso</label>
+    <input type="password" id="pwd" placeholder="••••••" autocomplete="off" onkeydown="if(event.key==='Enter')checkPwd()">
+    <button class="btn block" onclick="checkPwd()" style="margin-top:16px;">Entrar</button>
+    <div class="alert hidden" id="pwd-err" style="margin-top:12px;">Código incorrecto.</div>
+  </div>
+  <button class="btn outline" onclick="showScreen('s1')">← Volver</button>
+</div>
+
+<!-- APP -->
+<div class="page hidden" id="s3">
+  <div class="tabs" id="tabs">
+    <button class="tab on" data-tab="poker" onclick="setTab('poker')">🃏 Planning Poker</button>
+    <button class="tab" data-tab="qa" onclick="setTab('qa')">🧪 Casos de prueba (QA)</button>
+    <button class="tab hidden" data-tab="prof" onclick="setTab('prof')">👩‍🏫 Profesor</button>
+  </div>
+
+  <!-- POKER -->
+  <div id="t-poker">
+    <p class="subtitle" id="poker-intro"></p>
+    <div id="poker-list"></div>
+  </div>
+
+  <!-- QA -->
+  <div id="t-qa" class="hidden">
+    <p class="subtitle" id="qa-intro"></p>
+    <div class="card">
+      <div class="field">
+        <label for="qa-task">Tarea a probar</label>
+        <select id="qa-task" onchange="renderQA()"></select>
+      </div>
+      <div id="qa-task-info" class="task-desc"></div>
+      <div id="qa-form-wrap">
+        <hr style="border:none;border-top:1px solid var(--rule);margin:14px 0;">
+        <h2>Nuevo caso de prueba</h2>
+        <div class="field"><label for="tc-title">Título del caso</label><input id="tc-title" type="text" maxlength="120" placeholder="Ej. Login con contraseña incorrecta muestra error"></div>
+        <div class="row">
+          <div class="field"><label for="tc-type">Tipo de prueba</label>
+            <select id="tc-type"><option>Funcional</option><option>Negativa</option><option>Valor límite</option><option>Seguridad</option><option>Usabilidad</option><option>Rendimiento</option><option>Compatibilidad</option></select></div>
+          <div class="field"><label for="tc-prio">Prioridad</label>
+            <select id="tc-prio"><option>Alta</option><option selected>Media</option><option>Baja</option></select></div>
+        </div>
+        <div class="field"><label for="tc-pre">Precondiciones</label><textarea id="tc-pre" placeholder="Ej. Usuario registrado y activo"></textarea></div>
+        <div class="field"><label for="tc-steps">Pasos</label><textarea id="tc-steps" placeholder="1. Abrir la pantalla de login&#10;2. Ingresar usuario válido y contraseña inválida&#10;3. Presionar «Ingresar»"></textarea></div>
+        <div class="field"><label for="tc-exp">Resultado esperado</label><textarea id="tc-exp" placeholder="Ej. Se muestra «Credenciales inválidas» y no se inicia sesión"></textarea></div>
+        <button class="btn" onclick="addCase()">+ Agregar caso</button>
+      </div>
+      <div class="alert hidden" id="qa-readonly" style="margin:14px 0 0;">Estás como estimador: puedes ver los casos, pero solo el grupo QA los redacta.</div>
+    </div>
+    <h2 id="qa-list-title"></h2>
+    <div id="qa-list"></div>
+  </div>
+
+  <!-- PROFESOR -->
+  <div id="t-prof" class="hidden">
+    <p class="subtitle">Revela los votos de cada tarea cuando todos hayan votado, fija la estimación final y exporta los datos.</p>
+    <div class="card qr-card">
+      <div class="qr-box" id="qr" onclick="toggleQR()" title="Clic para ampliar / reducir" style="cursor:zoom-in"></div>
+      <div style="flex:1;min-width:200px">
+        <h2>Acceso para los alumnos</h2>
+        <p class="muted" style="margin-bottom:8px">Proyecta este código: los alumnos lo escanean con la cámara del celular y entran directo a la actividad. Clic en el QR para ampliarlo.</p>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:12px;word-break:break-all" id="qr-url"></p>
+        <div class="alert hidden" id="qr-warn" style="margin:10px 0 0;">Esta página está abierta como archivo local. Para que el QR funcione, abre la actividad desde su dirección publicada (por ejemplo GitHub Pages).</div>
+      </div>
+    </div>
+    <div id="prof-stats" class="card"></div>
+    <div id="prof-tasks"></div>
+    <div class="card">
+      <h2>Participación</h2>
+      <div id="prof-part"></div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn" onclick="exportCSV('votes')">Exportar votos (CSV)</button>
+      <button class="btn" onclick="exportCSV('cases')">Exportar casos de prueba (CSV)</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ───────── Datos de la actividad ─────────
+const TASKS = [
+  {id:'T1', title:'Inicio de sesión', desc:'El usuario ingresa con correo y contraseña. Bloqueo tras 5 intentos fallidos y opción «recordarme».'},
+  {id:'T2', title:'Registro de nuevo usuario', desc:'Formulario con validaciones (correo único, contraseña segura) y verificación del correo por enlace.'},
+  {id:'T3', title:'Recuperación de contraseña', desc:'Solicitud por correo, enlace temporal con vencimiento y formulario para definir la nueva contraseña.'},
+  {id:'T4', title:'Búsqueda de productos con filtros', desc:'Búsqueda por texto, filtro por categoría y rango de precio, ordenamiento y paginación de resultados.'},
+  {id:'T5', title:'Carrito de compras', desc:'Agregar, quitar y cambiar cantidades; cálculo de subtotal, impuestos y descuentos por cupón.'},
+  {id:'T6', title:'Pago con tarjeta', desc:'Captura de datos de tarjeta, integración con pasarela de pago y confirmación de la orden.'},
+  {id:'T7', title:'Reporte mensual de ventas en PDF', desc:'Generación de un reporte por rango de fechas con totales y gráficos, descargable en PDF.'},
+  {id:'T8', title:'Notificaciones por correo', desc:'Envío de correos transaccionales (confirmación de orden, cambio de estado) con plantillas.'},
+];
+const DECK = ['0','1','2','3','5','8','13','21','?','☕'];
+const FIB = {'0':0,'1':1,'2':2,'3':3,'5':4,'8':5,'13':6,'21':7};
+const ROSTER = [
+  'ACUÑA BALLESTERO JOSE ROBERTO','ALFARO RIVERA DEYNON','ALFARO RIVERA CAMILA ALEXANDRA','AMADOR FERNANDEZ NATHALIE JOHANNA',
+  'ARIAS BECERRA LUIS ALEJANDRO','AZOFEIFA ABARCA AARON DE LA CRUZ','AZOFEIFA AMPIE ALLAN ALBERTO','BARRANTES JIMENEZ JONATHAN STEVEN',
+  'BRENES HERRERA MARIA LAURA','CAMPOS AGUILAR NATALIA','CHAVEZ POMACAJA JOY DANIELA','CORTES TREJOS FRANCO ALEJANDRO',
+  'CRUZ PEREZ JOSE ANDRES','CUBERO UMAÑA JOSE PABLO','ESPINOZA GONZALEZ JOHAN ESTEBAN','FAJARDO TORRES MARIA FERNANDA',
+  'GARRO BONILLA ADRIAN ULISES','GUTIERREZ MONGE GABRIEL ESTEFANO','HERNANDEZ DELGADO ANA LIDIA','JIMENEZ LUNA GRAVYN',
+  'MARIN MONGE ERICK BERNARDO','MIRANDA VARELA WENDY CAROLINA','MORA ALFARO JEFERSON ANDREY','MORA SALAS JOSUE',
+  'MURILLO TAKAHASHI KYOMI','NUÑEZ ROJAS ARMANDO JOSUE','NUÑEZ TERCERO MARIAM','OROZCO PEREZ DANIEL',
+  'PICADO PIEDRA TOMAS ALBERTO','QUESADA AGUILAR DANIEL STEVENS','QUIROS OBANDO LUIS CARLOS','QUIROS RAMIREZ NICOLE STEYSI',
+  'ROJAS GONZALEZ WALTER FRANCISCO','SOLIS BENAVIDES MELISSA MARIA','ULATE ALPIZAR LUIS RICARDO',
+];
+const PROFESOR = 'PROF. MARCO UGARTE ULATE';
+
+// URL de la aplicación web de Google Apps Script (ver backend/apps_script.gs). Vacío = solo localStorage.
+const API_URL = 'https://script.google.com/macros/s/AKfycbzQAasD6WzoahRSqfj9cUAZAdkRroE_yQPBkFBPM79so2DXjafeyBFM8oYMJDiwoh26/exec';
+const LS_KEY = 'sc250_poker';
+const LS_SESSION = 'sc250_poker_session';
+const POLL_MS = 6000;
+
+// ───────── Estado ─────────
+let me = {name:'', role:'', isProf:false};
+let pickedRole = '';
+let records = [];
+let pollTimer = null;
+let curTab = 'poker';
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// ───────── Persistencia ─────────
+function localRecords(){try{return JSON.parse(localStorage.getItem(LS_KEY)||'[]').filter(r=>r&&r.id&&r.type);}catch(e){return[];}}
+function localSave(r){try{const a=localRecords();a.push(r);localStorage.setItem(LS_KEY,JSON.stringify(a));}catch(e){}}
+async function remoteSave(record){
+  if(!API_URL)return;
+  try{await fetch(API_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({app:'poker',record})});}catch(e){}
+}
+async function loadRecords(){
+  const local=localRecords();
+  if(!API_URL)return local;
+  try{
+    const res=await fetch(API_URL+'?app=poker&t='+Date.now());
+    const remote=await res.json();
+    if(!Array.isArray(remote))return local;
+    const seen=new Set(remote.filter(r=>r&&r.id).map(r=>r.id));
+    local.forEach(r=>{if(!seen.has(r.id))remote.push(r);});
+    return remote.filter(r=>r&&r.id&&r.type);
+  }catch(e){return local;}
+}
+function save(r){
+  r.id=Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+  r.ts=Date.now();
+  localSave(r);records.push(r);remoteSave(r);
+  return r;
+}
+async function refresh(){
+  records=await loadRecords();
+  renderAll();
+}
+
+// ───────── Derivados ─────────
+function latestBy(list,keyFn){
+  const m=new Map();
+  list.slice().sort((a,b)=>a.ts-b.ts).forEach(r=>m.set(keyFn(r),r));
+  return m;
+}
+function votesFor(taskId){
+  const m=latestBy(records.filter(r=>r.type==='vote'&&r.task===taskId),r=>r.name);
+  return [...m.values()];
+}
+function revealFor(taskId){
+  const m=latestBy(records.filter(r=>r.type==='reveal'&&r.task===taskId),r=>r.task);
+  return m.get(taskId)||null;
+}
+function isRevealed(taskId){const r=revealFor(taskId);return !!(r&&r.open);}
+function casesFor(taskId){
+  const dels=new Set(records.filter(r=>r.type==='delcase').map(r=>r.caseId));
+  return records.filter(r=>r.type==='case'&&r.task===taskId&&!dels.has(r.id)).sort((a,b)=>a.ts-b.ts);
+}
+function voteStats(votes){
+  const nums=votes.map(v=>v.value).filter(v=>v in FIB).map(Number);
+  if(!nums.length)return null;
+  nums.sort((a,b)=>a-b);
+  const avg=nums.reduce((a,b)=>a+b,0)/nums.length;
+  const mid=Math.floor(nums.length/2);
+  const median=nums.length%2?nums[mid]:(nums[mid-1]+nums[mid])/2;
+  const freq={};nums.forEach(n=>freq[n]=(freq[n]||0)+1);
+  const mode=+Object.keys(freq).sort((a,b)=>freq[b]-freq[a]||a-b)[0];
+  const lo=nums[0],hi=nums[nums.length-1];
+  const spread=FIB[String(hi)]-FIB[String(lo)];
+  return {n:nums.length,avg,median,mode,lo,hi,consensus:lo===hi,hot:spread>=3};
+}
+const fmt=n=>Number.isInteger(n)?n:n.toFixed(1);
+
+// ───────── Navegación ─────────
+function showScreen(id){['s1','s2','s3'].forEach(s=>$(s).classList.add('hidden'));$(id).classList.remove('hidden');}
+function pickRole(r){pickedRole=r;$('r-dev').classList.toggle('on',r==='dev');$('r-qa').classList.toggle('on',r==='qa');}
+function showProf(){showScreen('s2');$('pwd').focus();}
+function checkPwd(){
+  if($('pwd').value==='SC250'){
+    $('pwd-err').classList.add('hidden');$('pwd').value='';
+    start({name:PROFESOR,role:'prof',isProf:true});
+  }else $('pwd-err').classList.remove('hidden');
+}
+function enter(){
+  const name=$('nom').value;
+  if(!name){alert('Elige tu nombre.');return;}
+  if(!pickedRole){alert('Elige tu rol: Estimador o QA.');return;}
+  start({name,role:pickedRole,isProf:false});
+}
+function start(user){
+  me=user;
+  try{sessionStorage.setItem(LS_SESSION,JSON.stringify(me));}catch(e){}
+  const roleTxt=me.isProf?'Profesor':me.role==='qa'?'QA':'Estimador';
+  $('ub-text').textContent=me.name+' · '+roleTxt;
+  $('userbar').classList.remove('hidden');
+  document.querySelector('[data-tab="prof"]').classList.toggle('hidden',!me.isProf);
+  showScreen('s3');
+  setTab(me.role==='qa'?'qa':me.isProf?'prof':'poker');
+  refresh();
+  clearInterval(pollTimer);
+  pollTimer=setInterval(refresh,POLL_MS);
+}
+function logout(){
+  clearInterval(pollTimer);
+  try{sessionStorage.removeItem(LS_SESSION);}catch(e){}
+  $('userbar').classList.add('hidden');
+  me={name:'',role:'',isProf:false};
+  showScreen('s1');
+}
+function setTab(t){
+  curTab=t;
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
+  ['poker','qa','prof'].forEach(x=>$('t-'+x).classList.toggle('hidden',x!==t));
+  renderAll();
+}
+
+// ───────── Render ─────────
+function renderAll(){
+  if(curTab==='poker')renderPoker();
+  else if(curTab==='qa')renderQA();
+  else renderProf();
+}
+let qrBuilt=false;
+
+function voteOf(taskId){
+  const v=votesFor(taskId).find(v=>v.name===me.name);
+  return v?v.value:null;
+}
+
+function renderPoker(){
+  const canVote=!me.isProf;
+  $('poker-intro').innerHTML=canVote
+    ?'Elige una carta para cada tarea. Los votos de los demás permanecen <b>ocultos</b> hasta que el profesor los revele; mientras tanto puedes cambiar tu voto. Usa <b>?</b> si no entiendes la tarea y <b>☕</b> si necesitas un descanso.'
+    :'Vista de seguimiento: aquí ves cuántos votos lleva cada tarea. Usa la pestaña Profesor para revelar.';
+  $('poker-list').innerHTML=TASKS.map(t=>{
+    const votes=votesFor(t.id);
+    const open=isRevealed(t.id);
+    const mine=voteOf(t.id);
+    const rev=revealFor(t.id);
+    let body='';
+    if(canVote){
+      body+=`<div class="deck">${DECK.map(c=>`<button class="poker-card${mine===c?' on':''}" ${open?'disabled':''} onclick="vote('${t.id}','${c}')" aria-label="Carta ${c}">${c}</button>`).join('')}</div>`;
+    }
+    body+=`<div class="status"><span class="pill ${open?'open':'wait'}">${open?'Votos revelados':'Votación abierta'}</span><span>${votes.length} voto${votes.length===1?'':'s'}</span>${canVote&&mine!=null&&!open?`<span>· Tu voto: <b>${esc(mine)}</b></span>`:''}</div>`;
+    if(open){
+      const st=voteStats(votes);
+      const counts={};votes.forEach(v=>counts[v.value]=(counts[v.value]||0)+1);
+      body+=`<div class="dist">${DECK.filter(c=>counts[c]).map(c=>`<div class="dist-item"><div class="dist-card">${c}</div><div class="dist-n">×${counts[c]}</div></div>`).join('')||'<span class="muted">Sin votos.</span>'}</div>`;
+      if(st){
+        body+=`<div class="stats"><div class="stat"><b>${fmt(st.median)}</b><span>Mediana</span></div><div class="stat"><b>${fmt(+st.avg.toFixed(1))}</b><span>Promedio</span></div><div class="stat"><b>${st.mode}</b><span>Moda</span></div><div class="stat"><b>${st.lo}–${st.hi}</b><span>Rango</span></div>${rev&&rev.final!=null?`<div class="stat"><b style="color:var(--accent)">${esc(rev.final)}</b><span>Estimación final</span></div>`:''}</div>`;
+        body+=st.consensus?`<div class="status"><span class="pill open">✓ Consenso</span></div>`:st.hot?`<div class="status"><span class="pill hot">⚠ Alta dispersión</span><span>Quien votó el valor más alto y el más bajo explica su razonamiento y se vuelve a votar.</span></div>`:'';
+      }
+    }
+    return `<div class="card"><div class="task-head"><div><span class="task-id">${t.id}</span> <span class="task-title">${esc(t.title)}</span></div></div><p class="task-desc">${esc(t.desc)}</p>${body}</div>`;
+  }).join('');
+}
+
+async function vote(taskId,value){
+  if(isRevealed(taskId))return;
+  save({type:'vote',task:taskId,name:me.name,value});
+  renderPoker();
+}
+
+function renderQA(){
+  const isQA=me.role==='qa'||me.isProf;
+  $('qa-intro').textContent=isQA
+    ?'Para cada tarea, redacta casos de prueba claros: precondiciones, pasos y resultado esperado. Cubre caminos felices, casos negativos y valores límite. Considera la estimación del equipo: una tarea más grande requiere más casos.'
+    :'Casos de prueba redactados por el grupo QA.';
+  const sel=$('qa-task');
+  if(!sel.options.length){
+    sel.innerHTML=TASKS.map(t=>`<option value="${t.id}">${t.id} · ${esc(t.title)}</option>`).join('');
+  }
+  const t=TASKS.find(x=>x.id===sel.value)||TASKS[0];
+  const rev=revealFor(t.id);
+  const st=isRevealed(t.id)?voteStats(votesFor(t.id)):null;
+  const est=rev&&rev.final!=null?`Estimación final: <b>${esc(rev.final)}</b>`:st?`Mediana estimada: <b>${fmt(st.median)}</b>`:'Estimación aún no revelada';
+  $('qa-task-info').innerHTML=`${esc(t.desc)}<br><span class="muted">${est}</span>`;
+  $('qa-form-wrap').classList.toggle('hidden',!isQA);
+  $('qa-readonly').classList.toggle('hidden',isQA);
+  const cases=casesFor(t.id);
+  $('qa-list-title').textContent=`Casos de ${t.id} (${cases.length})`;
+  $('qa-list').innerHTML=cases.length?cases.map((c,i)=>`<div class="tc">
+    <div class="tc-top"><span class="task-id">${t.id}-TC${String(i+1).padStart(2,'0')}</span><span class="tc-title">${esc(c.title)}</span><span class="tag">${esc(c.ctype)}</span><span class="tag ${esc(String(c.prio).toLowerCase())}">${esc(c.prio)}</span></div>
+    <dl><dt>Precondiciones</dt><dd>${esc(c.pre)||'—'}</dd><dt>Pasos</dt><dd>${esc(c.steps)}</dd><dt>Resultado esperado</dt><dd>${esc(c.expected)}</dd><dt>Autor</dt><dd>${esc(c.name)}</dd></dl>
+    ${(c.name===me.name||me.isProf)?`<button class="btn sm outline" style="margin-top:8px" onclick="delCase('${c.id}')">Eliminar</button>`:''}
+  </div>`).join(''):'<p class="muted">Todavía no hay casos para esta tarea.</p>';
+}
+
+function addCase(){
+  const task=$('qa-task').value;
+  const title=$('tc-title').value.trim(),steps=$('tc-steps').value.trim(),expected=$('tc-exp').value.trim();
+  if(!title||!steps||!expected){alert('Completa el título, los pasos y el resultado esperado.');return;}
+  save({type:'case',task,name:me.name,title,ctype:$('tc-type').value,prio:$('tc-prio').value,pre:$('tc-pre').value.trim(),steps,expected});
+  ['tc-title','tc-pre','tc-steps','tc-exp'].forEach(i=>$(i).value='');
+  renderQA();
+}
+function delCase(id){
+  if(!confirm('¿Eliminar este caso de prueba?'))return;
+  save({type:'delcase',caseId:id,name:me.name});
+  renderQA();
+}
+
+// ───────── Profesor ─────────
+function renderProf(){
+  if(!qrBuilt){buildQR();qrBuilt=true;}
+  const votes=records.filter(r=>r.type==='vote');
+  const voters=new Set(votes.map(v=>v.name));
+  const qaNames=new Set(records.filter(r=>r.type==='case').map(c=>c.name));
+  const ncases=TASKS.reduce((a,t)=>a+casesFor(t.id).length,0);
+  const nrev=TASKS.filter(t=>isRevealed(t.id)).length;
+  $('prof-stats').innerHTML=`<div class="stats" style="margin-top:0"><div class="stat"><b>${voters.size}</b><span>Estimadores</span></div><div class="stat"><b>${nrev}/${TASKS.length}</b><span>Tareas reveladas</span></div><div class="stat"><b>${qaNames.size}</b><span>Alumnos QA activos</span></div><div class="stat"><b>${ncases}</b><span>Casos de prueba</span></div></div>`;
+  // No reconstruir las tarjetas si el profesor está escribiendo la estimación final
+  if(!(document.activeElement&&document.activeElement.classList.contains('final-in'))){
+    $('prof-tasks').innerHTML=TASKS.map(t=>{
+      const vs=votesFor(t.id),open=isRevealed(t.id),rev=revealFor(t.id),st=voteStats(vs);
+      const detail=vs.length?`<table class="tbl" style="margin-top:12px"><thead><tr><th>Estimador</th><th>Voto</th></tr></thead><tbody>${vs.sort((a,b)=>a.name.localeCompare(b.name)).map(v=>`<tr><td>${esc(v.name)}</td><td><b>${esc(v.value)}</b></td></tr>`).join('')}</tbody></table>`:'';
+      return `<div class="card"><div class="task-head"><div><span class="task-id">${t.id}</span> <span class="task-title">${esc(t.title)}</span></div>
+        <span class="pill ${open?'open':'wait'}">${open?'Revelada':'Oculta'} · ${vs.length} voto${vs.length===1?'':'s'}</span></div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px">
+          ${open?`<button class="btn sm outline" onclick="setReveal('${t.id}',false)">Volver a votar</button>`:`<button class="btn sm" onclick="setReveal('${t.id}',true)">Revelar votos</button>`}
+          <input class="final-in" id="fin-${t.id}" style="width:130px" placeholder="Estim. final" value="${rev&&rev.final!=null?esc(rev.final):(st?fmt(st.median):'')}">
+          <button class="btn sm" onclick="setFinal('${t.id}')">Fijar final</button>
+        </div>${detail}</div>`;
+    }).join('');
+  }
+  const present=[...voters];
+  $('prof-part').innerHTML=`<p class="muted" style="margin-bottom:8px">Alumnos de la lista que aún no han votado:</p><p style="font-size:13px">${ROSTER.filter(n=>!voters.has(n)&&!qaNames.has(n)).map(esc).join(' · ')||'Todos participaron ✓'}</p>`;
+}
+function setReveal(task,open){
+  const prev=revealFor(task);
+  save({type:'reveal',task,open,final:prev?prev.final:null,name:PROFESOR});
+  renderProf();
+}
+function setFinal(task){
+  const raw=$('fin-'+task).value.trim();
+  const prev=revealFor(task);
+  save({type:'reveal',task,open:prev?prev.open:false,final:raw===''?null:raw,name:PROFESOR});
+  renderProf();
+}
+function csvCell(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"';}
+function exportCSV(kind){
+  let rows;
+  if(kind==='votes'){
+    rows=[['Tarea','Estimador','Voto','Hora']];
+    TASKS.forEach(t=>votesFor(t.id).forEach(v=>rows.push([t.id+' '+t.title,v.name,v.value,new Date(v.ts).toLocaleString('es-CR')])));
+  }else{
+    rows=[['Tarea','Caso','Título','Tipo','Prioridad','Precondiciones','Pasos','Resultado esperado','Autor']];
+    TASKS.forEach(t=>casesFor(t.id).forEach((c,i)=>rows.push([t.id+' '+t.title,t.id+'-TC'+String(i+1).padStart(2,'0'),c.title,c.ctype,c.prio,c.pre,c.steps,c.expected,c.name])));
+  }
+  if(rows.length<2){alert('Sin datos.');return;}
+  const blob=new Blob(['﻿'+rows.map(r=>r.map(csvCell).join(',')).join('\n')],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=(kind==='votes'?'poker_votos':'poker_casos')+'_sc250.csv';a.click();
+}
+
+// ───────── QR de acceso ─────────
+function pageURL(){return location.href.split('#')[0].split('?')[0];}
+function buildQR(){
+  const url=pageURL();
+  $('qr-url').textContent=url;
+  $('qr-warn').classList.toggle('hidden',/^https?:/.test(url));
+  const box=$('qr');box.innerHTML='';
+  if(typeof QRCode==='undefined'){box.innerHTML='<span class="muted" style="line-height:1.4">No se pudo cargar el generador de QR.</span>';return;}
+  new QRCode(box,{text:url,width:200,height:200,colorDark:'#000000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
+}
+function toggleQR(){
+  const b=$('qr'),big=b.classList.toggle('big');
+  b.style.cursor=big?'zoom-out':'zoom-in';
+}
+
+// ───────── Init ─────────
+(function(){
+  const sel=$('nom');
+  ROSTER.forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o);});
+  try{
+    const s=JSON.parse(sessionStorage.getItem(LS_SESSION)||'null');
+    if(s&&s.name)start(s);
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
